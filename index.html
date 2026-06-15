@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d1b2a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="璿潔系統">
+<link rel="manifest" href="manifest.json">
+<title>璿潔工作坊 — 全能系統</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Space+Grotesk:wght@400;600;700&display=swap');
+:root{
+  --navy:#0d1b2a;--navy2:#1a2d42;--steel:#2a4a6b;
+  --accent:#3b9eff;--accent2:#00e5c8;--gold:#f0c040;
+  --text:#e8f0f8;--muted:#7a9ab8;--card:#15263a;--border:#243650;
+  --success:#22c55e;--warn:#f59e0b;--danger:#ef4444;--purple:#a855f7;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--navy);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:var(--navy);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0}
+.login-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%,rgba(59,158,255,.08),transparent 60%),radial-gradient(ellipse at 70% 70%,rgba(0,229,200,.05),transparent 50%)}
+.login-box{position:relative;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:44px 40px;width:340px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.5)}
+.login-icon{font-size:40px;margin-bottom:10px}
+.login-brand{font-size:22px;font-weight:700;color:var(--accent);letter-spacing:.5px}
+.login-sub{font-size:12px;color:var(--muted);margin-top:4px;margin-bottom:30px}
+.pw-wrap{position:relative;margin-bottom:12px}
+.login-input{width:100%;background:var(--navy);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:20px;padding:13px 16px;outline:none;text-align:center;letter-spacing:8px;transition:border-color .2s;font-family:'Space Grotesk',sans-serif}
+.login-input:focus{border-color:var(--accent)}
+.login-btn{width:100%;padding:13px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--accent),#1a7fe0);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:opacity .2s;letter-spacing:.5px}
+.login-btn:hover{opacity:.9}
+.login-err{color:var(--danger);font-size:12px;margin-top:8px;min-height:18px}
+.login-hint{font-size:11px;color:var(--steel);margin-top:18px}
+.version-tag{position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--steel);white-space:nowrap}
+
+/* LAYOUT */
+.shell{display:flex;min-height:100vh}
+.sidebar{width:230px;background:var(--navy2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .3s}
+.sidebar-logo{padding:22px 20px 18px;border-bottom:1px solid var(--border)}
+.s-brand{font-size:15px;font-weight:700;color:var(--accent)}
+.s-sub{font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:.5px}
+.nav{flex:1;padding:10px 0;overflow-y:auto}
+.nav-group{padding:14px 14px 5px;font-size:9.5px;letter-spacing:1.8px;color:var(--steel);text-transform:uppercase;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;border-radius:8px;margin:1px 8px;font-size:13px;color:var(--muted);transition:all .2s;border:1px solid transparent;user-select:none}
+.nav-item:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.nav-item.active{background:linear-gradient(90deg,rgba(59,158,255,.2),transparent);color:var(--accent);border-color:rgba(59,158,255,.2)}
+.nav-item .ni{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px}
+.nav-footer{padding:12px;border-top:1px solid var(--border)}
+.logout-btn{width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:all .2s}
+.logout-btn:hover{border-color:var(--danger);color:var(--danger)}
+
+.main{margin-left:230px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--navy2);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;backdrop-filter:blur(10px)}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar h1{font-size:15px;font-weight:600;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.t-badge{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600}
+.t-green{background:rgba(34,197,94,.15);color:var(--success);border:1px solid rgba(34,197,94,.25)}
+.t-clock{font-size:11px;color:var(--muted)}
+.content{padding:22px;flex:1}
+.panel{display:none}.panel.active{display:block}
+
+/* CARDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.ct{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.cv{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700}
+.cs{font-size:11px;color:var(--muted);margin-top:3px}
+.ca{border-top:2px solid var(--accent)}
+.cg{border-top:2px solid var(--gold)}
+.cs2{border-top:2px solid var(--success)}
+.ct2{border-top:2px solid var(--accent2)}
+.cp{border-top:2px solid var(--purple)}
+
+/* QUICK ACTIONS */
+.qa-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:18px}
+.qa{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 6px;text-align:center;cursor:pointer;transition:all .2s;font-size:11px;color:var(--muted);user-select:none}
+.qa:hover{border-color:var(--accent);color:var(--accent);background:rgba(59,158,255,.07);transform:translateY(-1px)}
+.qa-icon{font-size:20px;margin-bottom:5px}
+
+/* SECTION TITLE */
+.st{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin:20px 0 10px;font-weight:600}
+.st:first-child{margin-top:0}
+
+/* AI BOX */
+.ai-box{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.ai-hdr{background:linear-gradient(90deg,rgba(59,158,255,.1),rgba(0,229,200,.06));padding:12px 16px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--border)}
+.ai-dot{width:7px;height:7px;border-radius:50%;background:var(--accent2);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.ai-body{padding:16px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px}
+.chip{padding:5px 11px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid var(--border);color:var(--muted);transition:all .2s;background:var(--navy2);user-select:none}
+.chip:hover,.chip.on{border-color:var(--accent);color:var(--accent);background:rgba(59,158,255,.1)}
+
+/* INPUTS */
+textarea,input[type=text],input[type=number],input[type=date],select{background:var(--navy);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Noto Sans TC',sans-serif;font-size:13px;padding:8px 11px;outline:none;transition:border-color .2s;width:100%}
+textarea{resize:vertical;min-height:70px}
+textarea:focus,input:focus,select:focus{border-color:var(--accent)}
+select option{background:var(--navy2)}
+input[type=checkbox]{width:15px;height:15px;accent-color:var(--accent);cursor:pointer}
+.form-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.fl{font-size:12px;color:var(--muted);width:85px;flex-shrink:0}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .2s;font-family:'Noto Sans TC',sans-serif;user-select:none}
+.btn-p{background:var(--accent);color:#fff}
+.btn-p:hover{background:#2b8fe0;transform:translateY(-1px)}
+.btn-p:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-g{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-g:hover{border-color:var(--accent);color:var(--accent)}
+.btn-t{background:var(--accent2);color:var(--navy);font-weight:700}
+.btn-t:hover{background:#00ccb0}
+.btn-r{background:var(--danger);color:#fff}
+.btn-r:hover{background:#dc2626}
+.btn-sm{padding:5px 11px;font-size:11px}
+.copy-btn{font-size:10px;padding:3px 9px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s}
+.copy-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+
+/* AI OUTPUT */
+.ai-out{background:var(--navy);border:1px solid var(--border);border-radius:8px;padding:13px;min-height:100px;font-size:13px;line-height:1.85;margin-top:11px;white-space:pre-wrap}
+.ai-out.loading{color:var(--muted);font-style:italic}
+.ai-out.empty{color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:12px;text-align:center;min-height:90px}
+
+/* PLATFORM ROWS */
+.p-row{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--border)}
+.p-row:last-child{border-bottom:none}
+.p-icon{font-size:19px;width:30px;text-align:center;flex-shrink:0}
+.p-info{flex:1}
+.p-name{font-size:13px;font-weight:500}
+.p-meta{font-size:10px;color:var(--muted);margin-top:1px}
+.toggle{width:36px;height:20px;border-radius:10px;background:var(--steel);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--accent)}
+.toggle::after{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left .2s}
+.toggle.on::after{left:19px}
+
+/* REVENUE BARS */
+.r-bar{margin-bottom:10px}
+.r-lbl{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;color:var(--muted)}
+.r-lbl span:last-child{color:var(--text);font-weight:600}
+.bar-t{background:var(--navy);border-radius:4px;height:6px;overflow:hidden}
+.bar-f{height:100%;border-radius:4px;transition:width 1.2s ease}
+
+/* LEADS */
+.lead-row{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--border)}
+.lead-row:last-child{border-bottom:none}
+.l-av{width:34px;height:34px;border-radius:50%;background:var(--steel);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.l-info{flex:1}
+.l-name{font-size:13px;font-weight:500}
+.l-detail{font-size:10px;color:var(--muted);margin-top:1px}
+.l-score{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.hot{background:rgba(239,68,68,.15);color:var(--danger)}
+.warm{background:rgba(245,158,11,.15);color:var(--warn)}
+.cold{background:rgba(59,158,255,.15);color:var(--accent)}
+.i-btn{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .2s}
+.i-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* QUOTE */
+.svc-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.svc-chip{padding:7px 12px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-size:11px;color:var(--muted);transition:all .2s;background:var(--navy);text-align:center;line-height:1.4}
+.svc-chip:hover,.svc-chip.sel{border-color:var(--accent);color:var(--accent);background:rgba(59,158,255,.12);font-weight:600}
+.q-result{background:linear-gradient(135deg,rgba(59,158,255,.09),rgba(0,229,200,.06));border:1px solid rgba(59,158,255,.25);border-radius:10px;padding:16px;margin-top:11px}
+.q-total{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;color:var(--accent)}
+.q-item{display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05);color:var(--muted)}
+.q-disc{color:var(--success)}
+
+/* SCHEDULE */
+.sch-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:12px}
+.d-col{text-align:center}
+.d-lbl{font-size:9px;color:var(--muted);padding:4px 0;font-weight:500}
+.d-slot{background:var(--navy);border:1px solid var(--border);border-radius:5px;min-height:48px;cursor:pointer;transition:all .2s;padding:3px}
+.d-slot:hover{border-color:var(--accent)}
+.d-slot.has{background:rgba(59,158,255,.1);border-color:rgba(59,158,255,.4)}
+.d-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);margin:5px auto 2px}
+.d-txt{font-size:8px;color:var(--accent);text-align:center;line-height:1.3}
+
+/* CALENDAR / BOOKING */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:14px}
+.cal-hdr{font-size:9px;color:var(--muted);text-align:center;padding:4px 0;font-weight:600}
+.cal-day{background:var(--navy);border:1px solid var(--border);border-radius:6px;min-height:52px;padding:4px;cursor:pointer;transition:all .2s;position:relative}
+.cal-day:hover{border-color:var(--accent)}
+.cal-day.today{border-color:var(--accent);background:rgba(59,158,255,.08)}
+.cal-day.booked{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.3)}
+.cal-day.full{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.3)}
+.cal-num{font-size:10px;color:var(--muted);font-weight:500}
+.cal-dot{width:5px;height:5px;border-radius:50%;margin:2px auto 0}
+.booking-item{background:var(--navy);border:1px solid var(--border);border-radius:8px;padding:11px 14px;margin-bottom:8px;display:flex;align-items:center;gap:11px}
+.b-time{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--accent);width:50px;flex-shrink:0}
+.b-info{flex:1}
+.b-name{font-size:13px;font-weight:500}
+.b-detail{font-size:10px;color:var(--muted);margin-top:1px}
+.b-status{font-size:10px;padding:2px 8px;border-radius:12px;font-weight:600;flex-shrink:0}
+.st-confirm{background:rgba(34,197,94,.15);color:var(--success)}
+.st-pending{background:rgba(245,158,11,.15);color:var(--warn)}
+.st-done{background:rgba(122,154,184,.15);color:var(--muted)}
+
+/* REVIEW */
+.review-card{background:var(--navy);border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:8px}
+.r-stars{color:var(--gold);font-size:14px;margin-bottom:4px}
+.r-text{font-size:12px;color:var(--text);line-height:1.6;margin-bottom:6px}
+.r-meta{font-size:10px;color:var(--muted);display:flex;justify-content:space-between}
+.stars-select{display:flex;gap:6px;margin-bottom:11px}
+.star{font-size:22px;cursor:pointer;transition:transform .15s;line-height:1}
+.star:hover{transform:scale(1.2)}
+
+/* ACCOUNTING */
+.acc-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:12px}
+.acc-row:last-child{border-bottom:none}
+.acc-cat{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.acc-info{flex:1}
+.acc-name{font-size:12px;font-weight:500}
+.acc-date{font-size:10px;color:var(--muted)}
+.acc-amt{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600}
+.inc{color:var(--success)}.exp{color:var(--danger)}
+.profit-box{background:linear-gradient(135deg,rgba(59,158,255,.1),rgba(0,229,200,.07));border:1px solid rgba(59,158,255,.25);border-radius:10px;padding:18px;text-align:center}
+.profit-num{font-family:'Space Grotesk',sans-serif;font-size:38px;font-weight:700}
+.profit-lbl{font-size:11px;color:var(--muted);margin-top:3px}
+
+/* WORKERS */
+.worker-card{background:var(--navy);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px}
+.w-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.w-av{width:36px;height:36px;border-radius:50%;background:var(--steel);display:flex;align-items:center;justify-content:center;font-size:16px}
+.w-name{font-size:13px;font-weight:500}
+.w-role{font-size:10px;color:var(--muted)}
+.w-schedule{display:flex;gap:4px;flex-wrap:wrap}
+.w-day{padding:3px 7px;border-radius:5px;font-size:10px;background:rgba(59,158,255,.1);color:var(--accent);border:1px solid rgba(59,158,255,.2)}
+.w-day.off{background:rgba(239,68,68,.1);color:var(--danger);border-color:rgba(239,68,68,.2)}
+.w-day.job{background:rgba(34,197,94,.1);color:var(--success);border-color:rgba(34,197,94,.2)}
+
+/* NOTIFICATION */
+.notif{position:fixed;bottom:20px;right:20px;background:var(--accent);color:#fff;padding:10px 16px;border-radius:9px;font-size:12px;font-weight:500;z-index:9999;opacity:0;transform:translateY(6px);transition:all .3s;pointer-events:none;max-width:260px}
+.notif.show{opacity:1;transform:translateY(0)}
+
+/* STAT ROW */
+.stat-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.stat-pill{padding:5px 12px;border-radius:20px;font-size:11px;border:1px solid var(--border);color:var(--muted);background:var(--navy)}
+.stat-pill.active-pill{border-color:var(--accent);color:var(--accent);background:rgba(59,158,255,.08)}
+
+/* TAG */
+.tag{display:inline-block;padding:1px 7px;border-radius:4px;font-size:9px;font-weight:600;letter-spacing:.3px}
+.tag-ai{background:rgba(59,158,255,.15);color:var(--accent)}
+.tag-new{background:rgba(0,229,200,.15);color:var(--accent2)}
+.tag-hot{background:rgba(239,68,68,.15);color:var(--danger)}
+
+.tip{background:rgba(59,158,255,.07);border-left:3px solid var(--accent);border-radius:0 7px 7px 0;padding:9px 12px;font-size:11px;color:var(--muted);margin-top:10px}
+.divider{height:1px;background:var(--border);margin:16px 0}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--steel);border-radius:3px}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:none}
+  .main{margin-left:0}
+  .g2,.g4{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:1fr 1fr}
+  .qa-grid{grid-template-columns:repeat(3,1fr)}
+  .topbar,.content{padding:0 12px}
+  .content{padding:12px}
+  .hamburger{display:flex!important}
+  .sch-grid,.cal-grid{grid-template-columns:repeat(3,1fr)}
+}
+.hamburger{display:none;flex-direction:column;gap:4px;cursor:pointer;padding:4px}
+.hamburger span{width:18px;height:2px;background:var(--muted);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-bg"></div>
+  <div class="login-box">
+    <div class="login-icon">🔧</div>
+    <div class="login-brand">璿潔工作坊</div>
+    <div class="login-sub">全能自動創業系統 v2.0</div>
+    <div class="pw-wrap">
+      <input class="login-input" type="password" id="pw" placeholder="••••••" maxlength="20" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <button class="login-btn" onclick="login()">🔓 進入系統</button>
+    <div class="login-err" id="lerr"></div>
+    <div class="login-hint">預設密碼：xuanjie2024</div>
+    <div class="version-tag">璿潔全能系統 v2.0 · 7大模組</div>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<div class="shell" id="app" style="display:none">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="s-brand">🔧 璿潔工作坊</div>
+      <div class="s-sub">全能自動創業系統</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-group">總覽</div>
+      <div class="nav-item active" onclick="go('dash',this)"><span class="ni">📊</span>儀表板</div>
+      <div class="nav-group">預約管理</div>
+      <div class="nav-item" onclick="go('booking',this)"><span class="ni">📅</span>預約系統<span class="nav-badge">3</span></div>
+      
+      <div class="nav-group">AI 引擎</div>
+      <div class="nav-item" onclick="go('idea',this)"><span class="ni">💡</span>商業點子生成</div>
+      <div class="nav-item" onclick="go('content',this)"><span class="ni">✍️</span>內容排程發布</div>
+      <div class="nav-group">財務業務</div>
+      <div class="nav-item" onclick="go('accounting',this)"><span class="ni">📒</span>記帳損益表</div>
+      <div class="nav-item" onclick="go('quote',this)"><span class="ni">🧮</span>報價計算器</div>
+      <div class="nav-item" onclick="go('leads',this)"><span class="ni">👥</span>客戶管理</div>
+      <div class="nav-group">品牌口碑</div>
+      <div class="nav-item" onclick="go('reviews',this)"><span class="ni">⭐</span>評價收集系統</div>
+      <div class="nav-group">整合</div>
+      <div class="nav-item" onclick="go('platforms',this)"><span class="ni">🔗</span>平台整合</div>
+    </nav>
+    <div class="nav-footer">
+      <button class="logout-btn" onclick="logout()">🚪 登出系統</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">
+          <span></span><span></span><span></span>
+        </div>
+        <h1 id="ptitle">儀表板</h1>
+      </div>
+      <div class="topbar-right">
+        <span class="t-clock" id="clock"></span>
+        <span class="t-badge t-green">🟢 運行中</span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ===== DASHBOARD ===== -->
+      <div class="panel active" id="panel-dash">
+        <div class="qa-grid">
+          <div class="qa" onclick="go('booking',navItem('booking'))"><div class="qa-icon">📅</div>新增預約</div>
+          <div class="qa" onclick="go('idea',navItem('idea'))"><div class="qa-icon">💡</div>創業點子</div>
+          <div class="qa" onclick="go('content',navItem('content'))"><div class="qa-icon">✍️</div>寫貼文</div>
+          <div class="qa" onclick="go('quote',navItem('quote'))"><div class="qa-icon">🧮</div>快速報價</div>
+          <div class="qa" onclick="go('reviews',navItem('reviews'))"><div class="qa-icon">⭐</div>收集評價</div>
+        </div>
+        <div class="g4" style="margin-bottom:16px">
+          <div class="card ca"><div class="ct">本月收入</div><div class="cv">$42,500</div><div class="cs">↑ 18% vs 上月</div></div>
+          <div class="card cg"><div class="ct">待處理預約</div><div class="cv">3</div><div class="cs">今日 2 件</div></div>
+          <div class="card cs2"><div class="ct">完成服務</div><div class="cv">23</div><div class="cs">本月</div></div>
+          <div class="card ct2"><div class="ct">客戶評分</div><div class="cv">4.9 ⭐</div><div class="cs">共 47 則評價</div></div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="ct" style="margin-bottom:10px">🔥 今日待辦</div>
+            <div id="todo-list"></div>
+          </div>
+          <div class="card">
+            <div class="ct" style="margin-bottom:10px">📅 今日預約</div>
+            <div class="booking-item"><div class="b-time">09:00</div><div class="b-info"><div class="b-name">林小姐 · 壁掛冷氣清洗 × 2</div><div class="b-detail">台中市北區 · 師傅：老闆</div></div><span class="b-status st-confirm">確認</span></div>
+            <div class="booking-item"><div class="b-time">14:00</div><div class="b-info"><div class="b-name">王先生 · 洗衣機清洗</div><div class="b-detail">台中市西屯區 · 師傅：老闆</div></div><span class="b-status st-pending">待確認</span></div>
+            <div class="booking-item"><div class="b-time">16:30</div><div class="b-info"><div class="b-name">陳太太 · 冷氣維修</div><div class="b-detail">台中市南屯區 · 師傅：老闆</div></div><span class="b-status st-confirm">確認</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== BOOKING ===== -->
+      <div class="panel" id="panel-booking">
+        <div class="g2">
+          <div class="card">
+            <div class="ct" style="margin-bottom:12px">➕ 新增預約</div>
+            <div class="form-row"><span class="fl">客戶姓名</span><input type="text" id="b-name" placeholder="例：林小姐"></div>
+            <div class="form-row"><span class="fl">聯絡電話</span><input type="text" id="b-phone" placeholder="09XX-XXX-XXX"></div>
+            <div class="form-row"><span class="fl">服務項目</span>
+              <select id="b-service">
+                <option>壁掛式冷氣清洗</option><option>窗型冷氣清洗</option>
+                <option>直立式洗衣機清洗</option><option>抽油煙機清洗</option>
+                <option>冷氣維修</option><option>洗衣機維修</option>
+              </select>
+            </div>
+            <div class="form-row"><span class="fl">預約日期</span><input type="date" id="b-date"></div>
+            <div class="form-row"><span class="fl">時間</span>
+              <select id="b-time" style="width:auto">
+                <option>09:00</option><option>10:00</option><option>11:00</option>
+                <option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option>
+              </select>
+            </div>
+            <div class="form-row"><span class="fl">地址</span><input type="text" id="b-addr" placeholder="台中市..."></div>
+            <div class="form-row"><span class="fl">指定師傅</span>
+              <select id="b-worker"><option>老闆（我）</option></select>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button class="btn btn-p" onclick="addBooking()">📅 確認預約</button>
+              <button class="btn btn-t" onclick="genConfirmMsg()">📲 產生確認訊息</button>
+            </div>
+            <div class="ai-out empty" id="confirm-msg" style="margin-top:10px;min-height:70px;display:none;font-size:12px"></div>
+            <button class="copy-btn" id="confirm-copy" style="margin-top:6px;display:none" onclick="cp('confirm-msg')">📋 複製訊息</button>
+          </div>
+          <div class="card">
+            <div class="ct" style="margin-bottom:12px">📋 預約列表</div>
+            <div id="booking-list">
+              <div class="booking-item"><div class="b-time">6/14<br>09:00</div><div class="b-info"><div class="b-name">林小姐 · 壁掛冷氣清洗×2</div><div class="b-detail">台中市北區 · 老闆</div></div><span class="b-status st-confirm">確認</span></div>
+              <div class="booking-item"><div class="b-time">6/14<br>14:00</div><div class="b-info"><div class="b-name">王先生 · 洗衣機清洗</div><div class="b-detail">台中市西屯 · 老闆</div></div><span class="b-status st-pending">待確認</span></div>
+              <div class="booking-item"><div class="b-time">6/15<br>10:00</div><div class="b-info"><div class="b-name">陳太太 · 冷氣維修</div><div class="b-detail">台中市南屯 · 老闆</div></div><span class="b-status st-confirm">確認</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== WORKERS ===== -->
+      <div class="panel" id="panel-workers">
+        <div class="g2">
+          <div class="card">
+            <div class="ct" style="margin-bottom:12px">👤 老闆今日狀態</div>
+            <div style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--navy);border-radius:10px;margin-bottom:14px">
+              <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">👨‍🔧</div>
+              <div>
+                <div style="font-size:15px;font-weight:700">老闆</div>
+                <div style="font-size:11px;color:var(--muted);margin-top:2px">璿潔工作坊 · 全能師傅</div>
+                <div style="margin-top:6px;display:flex;gap:6px">
+                  <span style="font-size:10px;padding:2px 8px;border-radius:12px;background:rgba(34,197,94,.15);color:var(--success);font-weight:600">🟢 出勤中</span>
+                  <span style="font-size:10px;padding:2px 8px;border-radius:12px;background:rgba(59,158,255,.15);color:var(--accent)">冷氣 / 洗衣機 / 維修</span>
+                </div>
+              </div>
+            </div>
+            <div class="ct" style="margin-bottom:8px">📅 本週行程</div>
+            <div id="boss-schedule">
+              <div style="display:flex;gap:4px;flex-wrap:wrap">
+                <span class="w-day job">週一 冷氣×2</span>
+                <span class="w-day job">週二 洗衣機</span>
+                <span class="w-day off">週三 休</span>
+                <span class="w-day job">週四 維修</span>
+                <span class="w-day job">週五 冷氣×3</span>
+                <span class="w-day job">週六 冷氣×1</span>
+                <span class="w-day off">週日 休</span>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="ct" style="margin-bottom:8px">➕ 新增今日行程</div>
+            <div style="display:flex;gap:8px">
+              <input type="text" id="boss-job" placeholder="例：台中北區 冷氣清洗×2" style="flex:1">
+              <button class="btn btn-p btn-sm" onclick="addBossJob()">新增</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ct" style="margin-bottom:12px">📊 本月工作統計</div>
+            <div class="g2" style="gap:8px;margin-bottom:14px">
+              <div style="background:var(--navy);border-radius:8px;padding:12px;text-align:center">
+                <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:var(--accent)" id="boss-jobs">23</div>
+                <div style="font-size:10px;color:var(--muted);margin-top:2px">完成件數</div>
+              </div>
+              <div style="background:var(--navy);border-radius:8px;padding:12px;text-align:center">
+                <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:var(--success)">$42,500</div>
+                <div style="font-size:10px;color:var(--muted);margin-top:2px">本月收入</div>
+              </div>
+            </div>
+            <div class="ct" style="margin-bottom:8px">🤖 AI 今日路線建議</div>
+            <button class="btn btn-p" style="width:100%;justify-content:center;margin-bottom:10px" onclick="genRoute()">📍 AI 規劃最佳路線</button>
+            <div class="ai-out empty" id="route-out" style="min-height:100px">點擊後 AI 根據今日預約地點，規劃最省時路線</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== IDEA ===== -->
+      <div class="panel" id="panel-idea">
+        <div class="ai-box">
+          <div class="ai-hdr"><div class="ai-dot"></div><span style="font-size:13px;font-weight:600">AI 商業點子生成器</span><span class="tag tag-ai" style="margin-left:6px">Claude AI</span></div>
+          <div class="ai-body">
+            <div class="chips" id="idea-chips">
+              <div class="chip on" onclick="sc(this,'idea')">🔧 擴大服務</div>
+              <div class="chip" onclick="sc(this,'idea')">📦 加盟複製</div>
+              <div class="chip" onclick="sc(this,'idea')">🤝 異業合作</div>
+              <div class="chip" onclick="sc(this,'idea')">📱 數位轉型</div>
+              <div class="chip" onclick="sc(this,'idea')">💎 高端定位</div>
+              <div class="chip" onclick="sc(this,'idea')">🔁 定期保養</div>
+              <div class="chip" onclick="sc(this,'idea')">🏘️ 社區攻略</div>
+            </div>
+            <textarea id="idea-extra" placeholder="補充說明（可選）：例如「目前有2名師傅，想月收入破10萬」" rows="3" style="margin-bottom:11px"></textarea>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-p" id="idea-btn" onclick="genIdea()">⚡ 生成創業方案</button>
+              <button class="btn btn-g" onclick="clr('idea-out')">清除</button>
+            </div>
+            <div class="ai-out empty" id="idea-out">點擊「生成創業方案」，AI 將產出專屬璿潔的商業策略</div>
+            <div style="margin-top:7px"><button class="copy-btn" onclick="cp('idea-out')">📋 複製方案</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== CONTENT ===== -->
+      <div class="panel" id="panel-content">
+        <div class="g2">
+          <div class="ai-box">
+            <div class="ai-hdr"><div class="ai-dot"></div><span style="font-size:13px;font-weight:600">AI 貼文產生器</span><span class="tag tag-new" style="margin-left:6px">一鍵發布</span></div>
+            <div class="ai-body">
+              <div class="chips" id="content-chips">
+                <div class="chip on" onclick="sc(this,'content')">❄️ 冷氣清洗</div>
+                <div class="chip" onclick="sc(this,'content')">🫧 洗衣機</div>
+                <div class="chip" onclick="sc(this,'content')">🔧 維修</div>
+                <div class="chip" onclick="sc(this,'content')">📣 優惠</div>
+                <div class="chip" onclick="sc(this,'content')">💡 家電知識</div>
+                <div class="chip" onclick="sc(this,'content')">⭐ 好評分享</div>
+              </div>
+              <div class="form-row"><span class="fl">目標平台</span>
+                <select id="c-platform"><option>Facebook</option><option>Instagram</option><option>Threads</option><option>LINE 官方帳號</option></select>
+              </div>
+              <button class="btn btn-p" style="width:100%;justify-content:center;margin-bottom:11px" onclick="genContent()">✍️ AI 寫貼文</button>
+              <div class="ai-out empty" id="content-out" style="min-height:140px">選擇主題後點擊生成</div>
+              <div style="display:flex;gap:7px;margin-top:8px;flex-wrap:wrap">
+                <button class="copy-btn" onclick="cp('content-out')">📋 複製</button>
+                <button class="copy-btn" style="color:var(--accent2);border-color:var(--accent2)" onclick="addSch()">📅 加入排程</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ct" style="margin-bottom:11px">📅 本週發文排程</div>
+            <div class="sch-grid" id="sch-grid"></div>
+            <div class="tip">💡 建議每週 4–5 篇，週二、四、六效果最佳</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== ACCOUNTING ===== -->
+      <div class="panel" id="panel-accounting">
+        <div class="g2" style="margin-bottom:16px">
+          <div class="profit-box">
+            <div class="profit-lbl">本月淨利</div>
+            <div class="profit-num" style="color:var(--success)" id="profit-num">$34,200</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:6px">收入 $42,500 ／ 支出 $8,300</div>
+          </div>
+          <div class="card">
+            <div class="ct" style="margin-bottom:10px">➕ 新增記帳</div>
+            <div class="form-row"><span class="fl">類型</span>
+              <select id="acc-type" style="width:auto"><option value="inc">💰 收入</option><option value="exp">💸 支出</option></select>
+            </div>
+            <div class="form-row"><span class="fl">項目名稱</span><input type="text" id="acc-name" placeholder="例：壁掛冷氣清洗"></div>
+            <div class="form-row"><span class="fl">金額</span><input type="number" id="acc-amt" placeholder="1500" style="width:120px"></div>
+            <div class="form-row"><span class="fl">日期</span><input type="date" id="acc-date"></div>
+            <button class="btn btn-p btn-sm" onclick="addAcc()" style="margin-top:6px">新增</button>
+          </div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="ct" style="margin-bottom:10px">💰 收入明細</div>
+            <div id="inc-list">
+              <div class="acc-row"><div class="acc-cat" style="background:rgba(34,197,94,.1)">💰</div><div class="acc-info"><div class="acc-name">壁掛冷氣清洗 ×7</div><div class="acc-date">6/14</div></div><span class="acc-amt inc">+$10,500</span></div>
+              <div class="acc-row"><div class="acc-cat" style="background:rgba(34,197,94,.1)">💰</div><div class="acc-info"><div class="acc-name">洗衣機清洗 ×4</div><div class="acc-date">6/13</div></div><span class="acc-amt inc">+$7,200</span></div>
+              <div class="acc-row"><div class="acc-cat" style="background:rgba(34,197,94,.1)">💰</div><div class="acc-info"><div class="acc-name">冷氣維修</div><div class="acc-date">6/12</div></div><span class="acc-amt inc">+$2,800</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ct" style="margin-bottom:10px">💸 支出明細</div>
+            <div id="exp-list">
+              <div class="acc-row"><div class="acc-cat" style="background:rgba(239,68,68,.1)">🧴</div><div class="acc-info"><div class="acc-name">清潔耗材補充</div><div class="acc-date">6/10</div></div><span class="acc-amt exp">-$2,400</span></div>
+              <div class="acc-row"><div class="acc-cat" style="background:rgba(239,68,68,.1)">⛽</div><div class="acc-info"><div class="acc-name">油費</div><div class="acc-date">6/8</div></div><span class="acc-amt exp">-$1,800</span></div>
+              <div class="acc-row"><div class="acc-cat" style="background:rgba(239,68,68,.1)">📦</div><div class="acc-info"><div class="acc-name">零件採購</div><div class="acc-date">6/5</div></div><span class="acc-amt exp">-$4,100</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== QUOTE ===== -->
+      <div class="panel" id="panel-quote">
+        <div class="g2">
+          <div class="card">
+            <div class="ct" style="margin-bottom:12px">🧮 服務項目（可多選）</div>
+            <div class="svc-grid">
+              <div class="svc-chip sel" data-name="壁掛式冷氣清洗" data-price="1500" onclick="tSvc(this)">壁掛式冷氣清洗<br><span style="font-size:9px">$1,500/台</span></div>
+              <div class="svc-chip" data-name="窗型冷氣清洗" data-price="2200" onclick="tSvc(this)">窗型冷氣清洗<br><span style="font-size:9px">$2,200/台</span></div>
+              <div class="svc-chip" data-name="直立洗衣機清洗" data-price="1800" onclick="tSvc(this)">直立洗衣機清洗<br><span style="font-size:9px">$1,800/台</span></div>
+              <div class="svc-chip" data-name="抽油煙機清洗" data-price="1200" onclick="tSvc(this)">抽油煙機清洗<br><span style="font-size:9px">$1,200/台</span></div>
+              <div class="svc-chip" data-name="冷氣維修" data-price="800" onclick="tSvc(this)">冷氣維修（檢查費）<br><span style="font-size:9px">$800 起</span></div>
+            </div>
+            <div class="form-row"><span class="fl">數量（台）</span><input type="number" id="qty" value="1" min="1" max="20" style="width:75px" oninput="calcQ()"></div>
+            <div class="form-row"><span class="fl">LINE新客折扣</span><label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer"><input type="checkbox" id="nc" onchange="calcQ()">折抵 $200</label></div>
+            <div class="form-row"><span class="fl">多台優惠</span><label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer"><input type="checkbox" id="md" onchange="calcQ()">3台以上9折</label></div>
+          </div>
+          <div class="card">
+            <div class="ct" style="margin-bottom:12px">📄 報價結果</div>
+            <div class="q-result" id="q-result"><div style="color:var(--muted);font-size:12px">請選擇服務項目...</div></div>
+            <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-t" onclick="genQMsg()">📤 產生報價訊息</button>
+              <button class="copy-btn" onclick="cp('q-msg')" style="align-self:center">📋 複製</button>
+            </div>
+            <div class="ai-out" id="q-msg" style="margin-top:9px;min-height:70px;display:none;font-size:11px;line-height:1.7"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== LEADS ===== -->
+      <div class="panel" id="panel-leads">
+        <div class="g2">
+          <div class="card">
+            <div class="ct" style="margin-bottom:11px">👥 潛在客戶清單</div>
+            <div id="leads-list">
+              <div class="lead-row"><div class="l-av">👩</div><div class="l-info"><div class="l-name">林小姐</div><div class="l-detail">冷氣清洗×2 · 台中 · 已詢問3次</div></div><span class="l-score hot">🔥 熱</span><div style="display:flex;gap:4px"><button class="i-btn" onclick="fu('林小姐','冷氣清洗2台')">💬</button><button class="i-btn" onclick="markDone(this)">✅</button></div></div>
+              <div class="lead-row"><div class="l-av">👨</div><div class="l-info"><div class="l-name">王先生</div><div class="l-detail">洗衣機清洗 · 新竹</div></div><span class="l-score warm">☀️ 溫</span><div style="display:flex;gap:4px"><button class="i-btn" onclick="fu('王先生','洗衣機清洗')">💬</button><button class="i-btn" onclick="markDone(this)">✅</button></div></div>
+              <div class="lead-row"><div class="l-av">👩</div><div class="l-info"><div class="l-name">陳太太</div><div class="l-detail">冷氣維修 · 桃園</div></div><span class="l-score cold">💧 涼</span><div style="display:flex;gap:4px"><button class="i-btn" onclick="fu('陳太太','冷氣維修')">💬</button><button class="i-btn" onclick="markDone(this)">✅</button></div></div>
+              <div class="lead-row"><div class="l-av">👨</div><div class="l-info"><div class="l-name">張先生</div><div class="l-detail">抽油煙機清洗 · 台中</div></div><span class="l-score warm">☀️ 溫</span><div style="display:flex;gap:4px"><button class="i-btn" onclick="fu('張先生','抽油煙機清洗')">💬</button><button class="i-btn" onclick="markDone(this)">✅</button></div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ct" style="margin-bottom:11px">💬 AI 跟進話術</div>
+            <div class="ai-out empty" id="fu-out" style="min-height:160px">點擊左側客戶 💬 按鈕<br>AI 自動產生個人化跟進訊息</div>
+            <div style="margin-top:7px"><button class="copy-btn" onclick="cp('fu-out')">📋 複製訊息</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== REVIEWS ===== -->
+      <div class="panel" id="panel-reviews">
+        <div class="g2">
+          <div class="card">
+            <div class="ct" style="margin-bottom:12px">⭐ 收集客戶評價</div>
+            <div class="form-row"><span class="fl">客戶姓名</span><input type="text" id="rv-name" placeholder="例：林小姐"></div>
+            <div class="form-row"><span class="fl">服務項目</span>
+              <select id="rv-svc"><option>壁掛式冷氣清洗</option><option>窗型冷氣清洗</option><option>洗衣機清洗</option><option>抽油煙機清洗</option><option>冷氣維修</option></select>
+            </div>
+            <div style="margin-bottom:10px">
+              <div class="fl" style="width:auto;margin-bottom:6px;font-size:11px;color:var(--muted)">評分</div>
+              <div class="stars-select" id="star-select">
+                <span class="star" onclick="setStar(1)">⭐</span>
+                <span class="star" onclick="setStar(2)">⭐</span>
+                <span class="star" onclick="setStar(3)">⭐</span>
+                <span class="star" onclick="setStar(4)">⭐</span>
+                <span class="star" onclick="setStar(5)" style="filter:none">⭐</span>
+              </div>
+            </div>
+            <textarea id="rv-text" placeholder="客戶的評語（選填，或留空讓 AI 幫你生成）" rows="3" style="margin-bottom:10px"></textarea>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-p" onclick="addReview()">儲存評價</button>
+              <button class="btn btn-t" onclick="genReviewReply()">🤖 AI 回覆評價</button>
+            </div>
+            <div class="ai-out empty" id="rv-reply" style="margin-top:10px;min-height:70px">選擇評價後，AI 自動產生回覆話術</div>
+            <button class="copy-btn" style="margin-top:6px" onclick="cp('rv-reply')">📋 複製回覆</button>
+          </div>
+          <div class="card">
+            <div class="ct" style="margin-bottom:12px">📊 評價總覽</div>
+            <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px">
+              <div style="text-align:center">
+                <div style="font-family:'Space Grotesk',sans-serif;font-size:42px;font-weight:700;color:var(--gold)">4.9</div>
+                <div style="font-size:18px;color:var(--gold)">⭐⭐⭐⭐⭐</div>
+                <div style="font-size:10px;color:var(--muted);margin-top:3px">共 47 則評價</div>
+              </div>
+              <div style="flex:1">
+                <div class="r-bar"><div class="r-lbl"><span>5 ⭐</span><span>38 則</span></div><div class="bar-t"><div class="bar-f" style="width:81%;background:var(--gold)"></div></div></div>
+                <div class="r-bar"><div class="r-lbl"><span>4 ⭐</span><span>7 則</span></div><div class="bar-t"><div class="bar-f" style="width:15%;background:var(--gold)"></div></div></div>
+                <div class="r-bar"><div class="r-lbl"><span>3 ⭐</span><span>2 則</span></div><div class="bar-t"><div class="bar-f" style="width:4%;background:var(--warn)"></div></div></div>
+              </div>
+            </div>
+            <div id="review-list">
+              <div class="review-card"><div class="r-stars">⭐⭐⭐⭐⭐</div><div class="r-text">師傅非常專業，冷氣清洗後冷度明顯提升，還教我以後保養方法，非常推薦！</div><div class="r-meta"><span>林小姐</span><span>壁掛冷氣清洗 · 6/10</span></div></div>
+              <div class="review-card"><div class="r-stars">⭐⭐⭐⭐⭐</div><div class="r-text">服務很好，準時到達，洗完洗衣機都是驚人的髒污，很值得！</div><div class="r-meta"><span>王先生</span><span>洗衣機清洗 · 6/8</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PLATFORMS ===== -->
+      <div class="panel" id="panel-platforms">
+        <div class="g2">
+          <div class="card">
+            <div class="ct" style="margin-bottom:11px">🔗 已連結平台</div>
+            <div class="p-row"><div class="p-icon">💬</div><div class="p-info"><div class="p-name">LINE 官方帳號</div><div class="p-meta">@429pxjoe · 自動回覆 ON</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="p-row"><div class="p-icon">📘</div><div class="p-info"><div class="p-name">Facebook 粉絲頁</div><div class="p-meta">Buffer 排程中</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="p-row"><div class="p-icon">📸</div><div class="p-info"><div class="p-name">Instagram</div><div class="p-meta">Buffer 排程中</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="p-row"><div class="p-icon">🧵</div><div class="p-info"><div class="p-name">Threads</div><div class="p-meta">Buffer 排程中</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="p-row"><div class="p-icon">🌐</div><div class="p-info"><div class="p-name">官方網站</div><div class="p-meta">Tiiny.host 托管</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          </div>
+          <div class="card">
+            <div class="ct" style="margin-bottom:11px">⚙️ 自動化任務</div>
+            <div style="padding:9px 0;border-bottom:1px solid var(--border);font-size:12px;display:flex;justify-content:space-between"><span>LINE 關鍵字自動回覆</span><span style="color:var(--success)">✅ 啟用</span></div>
+            <div style="padding:9px 0;border-bottom:1px solid var(--border);font-size:12px;display:flex;justify-content:space-between"><span>預約確認自動訊息</span><span style="color:var(--success)">✅ 啟用</span></div>
+            <div style="padding:9px 0;border-bottom:1px solid var(--border);font-size:12px;display:flex;justify-content:space-between"><span>每週社群貼文排程</span><span style="color:var(--success)">✅ 啟用</span></div>
+            <div style="padding:9px 0;border-bottom:1px solid var(--border);font-size:12px;display:flex;justify-content:space-between"><span>完工後邀請評價</span><span style="color:var(--warn)">⚙️ 設定中</span></div>
+            <div style="padding:9px 0;border-bottom:1px solid var(--border);font-size:12px;display:flex;justify-content:space-between"><span>回頭客定期提醒</span><span style="color:var(--warn)">⚙️ 設定中</span></div>
+            <div style="padding:9px 0;font-size:12px;display:flex;justify-content:space-between"><span>每月損益自動匯整</span><span style="color:var(--muted)">⬜ 未啟用</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end content -->
+  </div><!-- end main -->
+</div><!-- end shell -->
+
+<script>
+// ===== AUTH =====
+const PW='xuanjie2024';
+function login(){
+  if(document.getElementById('pw').value===PW){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='flex';
+    sessionStorage.setItem('xj2','1');init();
+  } else {
+    const e=document.getElementById('lerr');
+    e.textContent='❌ 密碼錯誤，請重試';
+    document.getElementById('pw').value='';
+    setTimeout(()=>e.textContent='',2500);
+  }
+}
+function logout(){sessionStorage.removeItem('xj2');location.reload();}
+if(sessionStorage.getItem('xj2')==='1'){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+}
+
+// ===== NAV =====
+const PT={dash:'儀表板',booking:'預約系統',workers:'老闆行程管理',idea:'AI 商業點子',content:'內容排程發布',accounting:'記帳損益表',quote:'報價計算器',leads:'客戶管理',reviews:'評價收集系統',platforms:'平台整合'};
+function go(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  document.getElementById('ptitle').textContent=PT[id]||id;
+  if(window.innerWidth<=768)document.getElementById('sidebar').classList.remove('open');
+}
+function navItem(id){return [...document.querySelectorAll('.nav-item')].find(n=>n.getAttribute('onclick')?.includes("'"+id+"'"));}
+
+// ===== UTILS =====
+function notify(m){const e=document.getElementById('notif');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2600);}
+function setOut(id,t,loading=false){const e=document.getElementById(id);e.textContent=t;e.className='ai-out'+(loading?' loading':'');}
+function clr(id){const e=document.getElementById(id);e.textContent='';e.className='ai-out empty';}
+function cp(id){
+  const e=document.getElementById(id);
+  if(!e||e.classList.contains('empty')){notify('⚠️ 沒有內容');return;}
+  navigator.clipboard.writeText(e.textContent).then(()=>notify('📋 已複製！'));
+}
+function sc(el,g){document.querySelectorAll('#'+g+'-chips .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
+function updateClock(){document.getElementById('clock').textContent=new Date().toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});}
+
+// ===== AI =====
+async function ai(prompt){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+  const d=await r.json();
+  return d.content?.map(b=>b.text||'').join('')||'（無回應）';
+}
+
+// ===== BOOKING =====
+function addBooking(){
+  const n=document.getElementById('b-name').value;
+  if(!n){notify('⚠️ 請填寫客戶姓名');return;}
+  const s=document.getElementById('b-service').value;
+  const dt=document.getElementById('b-date').value;
+  const tm=document.getElementById('b-time').value;
+  const list=document.getElementById('booking-list');
+  const item=document.createElement('div');
+  item.className='booking-item';
+  item.innerHTML=`<div class="b-time">${dt.slice(5)||'?'}<br>${tm}</div><div class="b-info"><div class="b-name">${n} · ${s}</div><div class="b-detail">${document.getElementById('b-addr').value||'地址未填'} · ${document.getElementById('b-worker').value}</div></div><span class="b-status st-confirm">確認</span>`;
+  list.prepend(item);
+  notify('✅ 預約已新增！');
+}
+function genConfirmMsg(){
+  const n=document.getElementById('b-name').value||'客戶';
+  const s=document.getElementById('b-service').value;
+  const dt=document.getElementById('b-date').value;
+  const tm=document.getElementById('b-time').value;
+  const msg=`${n} 您好！\n\n璿潔工作坊預約確認通知 🔧\n\n✅ 服務：${s}\n📅 日期：${dt}\n⏰ 時間：${tm}\n👷 師傅將準時到達\n\n如需更改預約，請提前一天通知。\n感謝您的預約，期待為您服務！😊\n\nLINE：@429pxjoe`;
+  const el=document.getElementById('confirm-msg');
+  el.textContent=msg;el.style.display='block';el.className='ai-out';
+  document.getElementById('confirm-copy').style.display='inline-block';
+  notify('📲 確認訊息已產生');
+}
+
+// ===== DISPATCH =====
+async function genDispatch(){
+  setOut('dispatch-out','🤖 AI 正在分析最佳派工方案...',true);
+  try{
+    const r=await ai('你是璿潔工作坊的調度系統。師傅：老闆（冷氣專精，台中）、老闆（洗衣機專精，台中）。今日預約：林小姐冷氣清洗2台台中北區09:00、王先生洗衣機清洗台中西屯14:00、陳太太冷氣維修台中南屯16:30。請給最佳派工方案，考慮專長和路線，用繁體中文，條列說明。');
+    setOut('dispatch-out',r);notify('✅ 派工方案已產生');
+  }catch{setOut('dispatch-out','⚠️ 連線失敗');}
+}
+
+// ===== IDEA =====
+async function genIdea(){
+  const chip=document.querySelector('#idea-chips .chip.on');
+  const topic=chip?chip.textContent.trim():'擴大服務';
+  const extra=document.getElementById('idea-extra').value;
+  const btn=document.getElementById('idea-btn');
+  btn.disabled=true;btn.textContent='⏳ 生成中...';
+  setOut('idea-out','AI 正在為璿潔工作坊量身打造創業策略...',true);
+  try{
+    const r=await ai(`你是台灣家電清洗/維修創業顧問。
+業者：璿潔工作坊，台中為主，服務新北桃園新竹苗栗彰化台中
+服務：壁掛冷氣$1500、窗型$2200、直立洗衣機$1800、抽油煙機、維修
+師傅：2名，LINE官帳@429pxjoe、FB/IG/Threads、官網
+針對「${topic}」${extra?'，需求：'+extra:''}
+給出3個具體可行方案，每個包含：方案名稱、核心策略、預估月增收、3步驟執行。
+繁體中文，務實不空泛。`);
+    setOut('idea-out',r);notify('✅ 創業方案已生成');
+  }catch{setOut('idea-out','⚠️ 連線失敗，請稍後再試');}
+  btn.disabled=false;btn.textContent='⚡ 生成創業方案';
+}
+
+// ===== CONTENT =====
+async function genContent(){
+  const chip=document.querySelector('#content-chips .chip.on');
+  const topic=chip?chip.textContent.trim():'冷氣清洗';
+  const platform=document.getElementById('c-platform').value;
+  setOut('content-out','✍️ AI 正在撰寫...',true);
+  try{
+    const r=await ai(`你是璿潔工作坊社群小編。為「${platform}」寫關於「${topic}」的貼文。台灣口語、親切自然、有emoji、結尾：「預約加LINE：@429pxjoe」。${platform==='Instagram'?'加5個hashtag。':''}${platform==='Threads'?'150字以內。':'280字以內。'}只輸出貼文，不要說明。`);
+    setOut('content-out',r);notify('✅ 貼文已生成');
+  }catch{setOut('content-out','⚠️ 連線失敗');}
+}
+const schP={1:'冷氣清洗',3:'LINE優惠',5:'客戶見證'};
+function buildSch(){
+  const g=document.getElementById('sch-grid');g.innerHTML='';
+  ['日','一','二','三','四','五','六'].forEach((d,i)=>{
+    const c=document.createElement('div');c.className='d-col';
+    c.innerHTML=`<div class="d-lbl">週${d}</div><div class="d-slot${schP[i]?' has':''}">
+      ${schP[i]?`<div class="d-dot"></div><div class="d-txt">${schP[i]}</div>`:''}
+    </div>`;g.appendChild(c);
+  });
+}
+function addSch(){
+  if(document.getElementById('content-out').classList.contains('empty')){notify('⚠️ 請先生成貼文');return;}
+  notify('📅 已加入排程！請到 Buffer 設定發布時間');
+}
+
+// ===== QUOTE =====
+function tSvc(el){el.classList.toggle('sel');calcQ();}
+function calcQ(){
+  const sel=[...document.querySelectorAll('.svc-chip.sel')];
+  const qty=parseInt(document.getElementById('qty').value)||1;
+  const nc=document.getElementById('nc').checked;
+  const md=document.getElementById('md').checked;
+  if(!sel.length){document.getElementById('q-result').innerHTML='<div style="color:var(--muted);font-size:12px">請選擇服務項目...</div>';return;}
+  const items=sel.map(e=>({name:e.dataset.name,price:parseInt(e.dataset.price),qty}));
+  let sub=items.reduce((s,i)=>s+i.price*i.qty,0);
+  let disc=0;
+  if(md&&qty>=3)disc+=Math.round(sub*0.1);
+  if(nc)disc+=200;
+  const total=sub-disc;
+  let html=`<div class="q-total">NT$ ${total.toLocaleString()}</div><div style="margin-top:10px">`;
+  items.forEach(i=>{html+=`<div class="q-item"><span>${i.name}×${i.qty}</span><span>$${(i.price*i.qty).toLocaleString()}</span></div>`;});
+  if(md&&qty>=3)html+=`<div class="q-item q-disc"><span>🎉 多台9折</span><span>-$${Math.round(sub*0.1).toLocaleString()}</span></div>`;
+  if(nc)html+=`<div class="q-item q-disc"><span>🎁 LINE新客</span><span>-$200</span></div>`;
+  html+='</div>';
+  document.getElementById('q-result').innerHTML=html;
+  window._qt=total;window._qi=items;window._qd=disc;
+}
+function genQMsg(){
+  if(!window._qi)return;
+  let m=`您好！以下是璿潔工作坊的服務報價 🔧\n\n`;
+  window._qi.forEach(i=>{m+=`✅ ${i.name} × ${i.qty} 台：$${(i.price*i.qty).toLocaleString()}\n`;});
+  if(window._qd)m+=`\n🎉 優惠折抵：-$${window._qd.toLocaleString()}\n`;
+  m+=`\n💰 合計：NT$ ${window._qt.toLocaleString()}\n\n📞 預約 LINE：@429pxjoe\n服務地區：新北、桃園、新竹、台中、苗栗、彰化\n\n感謝您的詢問 😊`;
+  const el=document.getElementById('q-msg');el.textContent=m;el.style.display='block';el.className='ai-out';
+  notify('📄 報價訊息已產生');
+}
+
+// ===== LEADS =====
+async function fu(name,svc){
+  setOut('fu-out',`⏳ 為 ${name} 生成跟進話術...`,true);
+  try{
+    const r=await ai(`你是璿潔工作坊客服。客戶「${name}」詢問過「${svc}」但還沒預約。寫LINE跟進訊息，自然親切不推銷，提醒可加LINE預約（@429pxjoe），80字以內。只輸出訊息。`);
+    setOut('fu-out',r);notify(`✅ ${name} 跟進話術已產生`);
+  }catch{setOut('fu-out','⚠️ 連線失敗');}
+}
+function markDone(btn){const row=btn.closest('.lead-row');row.style.opacity='.3';row.style.pointerEvents='none';notify('✅ 已標記完成');}
+
+// ===== REVIEWS =====
+let starRating=5;
+function setStar(n){
+  starRating=n;
+  document.querySelectorAll('.star').forEach((s,i)=>{s.style.filter=i<n?'none':'grayscale(1)';});
+}
+function addReview(){
+  const name=document.getElementById('rv-name').value||'客戶';
+  const svc=document.getElementById('rv-svc').value;
+  const text=document.getElementById('rv-text').value||'服務很滿意！';
+  const stars='⭐'.repeat(starRating);
+  const card=document.createElement('div');card.className='review-card';
+  card.innerHTML=`<div class="r-stars">${stars}</div><div class="r-text">${text}</div><div class="r-meta"><span>${name}</span><span>${svc} · 今日</span></div>`;
+  document.getElementById('review-list').prepend(card);
+  notify('⭐ 評價已儲存！');
+  document.getElementById('rv-name').value='';document.getElementById('rv-text').value='';
+}
+async function genReviewReply(){
+  const name=document.getElementById('rv-name').value||'客戶';
+  const stars=starRating;
+  setOut('rv-reply',`⏳ 生成回覆話術...`,true);
+  try{
+    const r=await ai(`你是璿潔工作坊老闆。客戶「${name}」給了${stars}顆星評價，服務項目：${document.getElementById('rv-svc').value}，評語：「${document.getElementById('rv-text').value||'服務很好'}」。請寫一則誠懇的回覆，感謝評價${stars<4?'，並說明會改進':''}，歡迎再次使用。60字以內，繁體中文，自然不罐頭。`);
+    setOut('rv-reply',r);notify('✅ 回覆話術已產生');
+  }catch{setOut('rv-reply','⚠️ 連線失敗');}
+}
+
+// ===== ACCOUNTING =====
+let incTotal=42500,expTotal=8300;
+function addAcc(){
+  const type=document.getElementById('acc-type').value;
+  const name=document.getElementById('acc-name').value;
+  const amt=parseInt(document.getElementById('acc-amt').value)||0;
+  const date=document.getElementById('acc-date').value;
+  if(!name||!amt){notify('⚠️ 請填寫項目和金額');return;}
+  const listId=type==='inc'?'inc-list':'exp-list';
+  const row=document.createElement('div');row.className='acc-row';
+  row.innerHTML=`<div class="acc-cat" style="background:rgba(${type==='inc'?'34,197,94':'239,68,68'},.1)">${type==='inc'?'💰':'💸'}</div><div class="acc-info"><div class="acc-name">${name}</div><div class="acc-date">${date}</div></div><span class="acc-amt ${type==='inc'?'inc':'exp'}">${type==='inc'?'+':'-'}$${amt.toLocaleString()}</span>`;
+  document.getElementById(listId).prepend(row);
+  if(type==='inc')incTotal+=amt; else expTotal+=amt;
+  document.getElementById('profit-num').textContent='$'+(incTotal-expTotal).toLocaleString();
+  document.getElementById('profit-num').style.color=incTotal>expTotal?'var(--success)':'var(--danger)';
+  notify(`✅ ${type==='inc'?'收入':'支出'}已記錄`);
+  document.getElementById('acc-name').value='';document.getElementById('acc-amt').value='';
+}
+
+// ===== TODOS =====
+function buildTodos(){
+  document.getElementById('todo-list').innerHTML=[
+    {i:'📞',t:'跟進林小姐冷氣清洗詢問',u:true},
+    {i:'📅',t:'確認今日 09:00 預約（林小姐）',u:true},
+    {i:'✍️',t:'本週四社群貼文排程',u:false},
+    {i:'💰',t:'確認本週 3 筆付款',u:false},
+  ].map(t=>`<div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span>${t.i}</span><span style="flex:1;color:${t.u?'var(--text)':'var(--muted)'}">${t.t}</span>${t.u?'<span style="color:var(--danger);font-size:9px;font-weight:700">緊急</span>':''}</div>`).join('');
+}
+
+// ===== INIT =====
+function init(){
+  buildTodos();buildSch();calcQ();setStar(5);
+  updateClock();setInterval(updateClock,60000);
+  // set today's date as default
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('b-date').value=today;
+  document.getElementById('acc-date').value=today;
+}
+async function genRoute(){
+  setOut('route-out','📍 AI 正在規劃今日最佳路線...',true);
+  try{
+    const r=await ai('璿潔工作坊老闆今日預約：林小姐台中北區09:00冷氣清洗、王先生台中西屯14:00洗衣機、陳太太台中南屯16:30冷氣維修。請規劃最省時的拜訪順序和路線建議，用繁體中文條列。');
+    setOut('route-out',r);notify('✅ 路線規劃完成');
+  }catch{setOut('route-out','⚠️ 連線失敗，請上傳到網路版使用');}
+}
+function addBossJob(){
+  const job=document.getElementById('boss-job').value;
+  if(!job){notify('⚠️ 請填寫行程');return;}
+  const sch=document.getElementById('boss-schedule').querySelector('div');
+  const span=document.createElement('span');
+  span.className='w-day job';
+  span.textContent='新增 '+job;
+  sch.appendChild(span);
+  document.getElementById('boss-job').value='';
+  notify('✅ 行程已新增');
+}
+if(sessionStorage.getItem('xj2')==='1')init();
+</script>
+</body>
+</html>

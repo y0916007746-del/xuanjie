@@ -1,0 +1,17 @@
+{
+  "name": "璿潔工作坊 全能系統",
+  "short_name": "璿潔系統",
+  "description": "璿潔工作坊自動創業全能系統",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d1b2a",
+  "theme_color": "#0d1b2a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230d1b2a'/><text y='.9em' font-size='80' x='10'>🔧</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}
