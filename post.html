@@ -1,1 +1,881 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>璿潔貼文工具</title></head><body><script>location.href='https://y0916007746-del.github.io/xuanjie'</script></body></html>
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>璿潔工作坊 — 全功能管理系統</title>
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --navy2: #1b2e44;
+    --gold: #c9a84c;
+    --gold2: #e8c97a;
+    --white: #f5f5f0;
+    --gray: #8a9bb0;
+    --green: #2ecc71;
+    --red: #e74c3c;
+    --blue: #3498db;
+    --card: #162234;
+    --border: #243650;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--navy); color:var(--white); font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; }
+
+  /* HEADER */
+  header {
+    background:var(--navy2);
+    border-bottom:2px solid var(--gold);
+    padding:14px 20px;
+    display:flex; align-items:center; gap:12px;
+    position:sticky; top:0; z-index:100;
+  }
+  header .logo { font-size:1.3rem; font-weight:700; color:var(--gold); letter-spacing:1px; }
+  header .subtitle { font-size:0.75rem; color:var(--gray); }
+
+  /* TABS */
+  .tabs {
+    display:flex; overflow-x:auto; background:var(--navy2);
+    border-bottom:1px solid var(--border); padding:0 16px;
+    gap:4px; scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tab {
+    padding:10px 16px; cursor:pointer; font-size:0.82rem; white-space:nowrap;
+    border-bottom:3px solid transparent; color:var(--gray);
+    transition:all .2s; user-select:none;
+  }
+  .tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+  .tab:hover { color:var(--white); }
+
+  /* PAGES */
+  .page { display:none; padding:16px; max-width:860px; margin:0 auto; }
+  .page.active { display:block; }
+
+  /* CARDS */
+  .card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:12px; padding:16px; margin-bottom:14px;
+  }
+  .card-title { color:var(--gold); font-weight:600; font-size:0.9rem; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+
+  /* INPUTS */
+  label { font-size:0.8rem; color:var(--gray); display:block; margin-bottom:4px; margin-top:10px; }
+  input, textarea, select {
+    width:100%; padding:9px 12px; background:var(--navy);
+    border:1px solid var(--border); border-radius:8px;
+    color:var(--white); font-size:0.88rem; outline:none;
+    transition:border .2s;
+  }
+  input:focus, textarea:focus, select:focus { border-color:var(--gold); }
+  textarea { resize:vertical; min-height:80px; }
+
+  /* BUTTONS */
+  .btn {
+    padding:9px 18px; border:none; border-radius:8px;
+    cursor:pointer; font-size:0.85rem; font-weight:600;
+    transition:all .18s; display:inline-flex; align-items:center; gap:6px;
+  }
+  .btn-gold { background:var(--gold); color:var(--navy); }
+  .btn-gold:hover { background:var(--gold2); }
+  .btn-outline { background:transparent; border:1px solid var(--border); color:var(--white); }
+  .btn-outline:hover { border-color:var(--gold); color:var(--gold); }
+  .btn-green { background:var(--green); color:#fff; }
+  .btn-red { background:var(--red); color:#fff; }
+  .btn-blue { background:var(--blue); color:#fff; }
+  .btn-sm { padding:6px 12px; font-size:0.78rem; }
+  .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+
+  /* PLATFORM TABS */
+  .ptabs { display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+  .ptab {
+    padding:5px 12px; border-radius:20px; font-size:0.78rem; cursor:pointer;
+    border:1px solid var(--border); color:var(--gray); transition:all .15s;
+  }
+  .ptab.active { border-color:var(--gold); color:var(--gold); background:rgba(201,168,76,.12); }
+
+  /* OUTPUT */
+  .output-box {
+    background:var(--navy); border:1px solid var(--border); border-radius:8px;
+    padding:12px; font-size:0.85rem; line-height:1.7; min-height:80px;
+    white-space:pre-wrap; word-break:break-word;
+  }
+
+  /* BADGE */
+  .badge {
+    display:inline-block; padding:2px 8px; border-radius:12px;
+    font-size:0.72rem; font-weight:600;
+  }
+  .badge-green { background:rgba(46,204,113,.2); color:var(--green); }
+  .badge-yellow { background:rgba(201,168,76,.2); color:var(--gold); }
+  .badge-red { background:rgba(231,76,60,.2); color:var(--red); }
+
+  /* PRICE TABLE */
+  .price-row {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 0; border-bottom:1px solid var(--border);
+  }
+  .price-row:last-child { border-bottom:none; }
+  .price-name { font-size:0.88rem; }
+  .price-amount { color:var(--gold); font-weight:700; font-size:1rem; }
+
+  /* QUOTE RESULT */
+  .quote-result {
+    background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(13,27,42,0));
+    border:1px solid var(--gold); border-radius:10px; padding:14px;
+    margin-top:12px;
+  }
+  .quote-total { font-size:1.5rem; color:var(--gold); font-weight:800; }
+
+  /* SOP LIST */
+  .sop-item {
+    display:flex; align-items:flex-start; gap:10px;
+    padding:10px 0; border-bottom:1px solid var(--border);
+  }
+  .sop-check {
+    width:22px; height:22px; border-radius:50%; border:2px solid var(--border);
+    flex-shrink:0; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    font-size:0.7rem; transition:all .15s;
+  }
+  .sop-check.done { background:var(--green); border-color:var(--green); color:#fff; }
+  .sop-text { font-size:0.85rem; padding-top:2px; }
+  .sop-text.done { color:var(--gray); text-decoration:line-through; }
+
+  /* BOOKING LIST */
+  .booking-item {
+    display:flex; align-items:center; gap:10px;
+    padding:10px 0; border-bottom:1px solid var(--border);
+    flex-wrap:wrap;
+  }
+  .booking-info { flex:1; min-width:160px; }
+  .booking-name { font-weight:600; font-size:0.88rem; }
+  .booking-detail { font-size:0.76rem; color:var(--gray); margin-top:2px; }
+
+  /* FOLLOW UP */
+  .follow-item {
+    padding:10px; background:var(--navy); border-radius:8px;
+    margin-bottom:8px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+  }
+  .follow-info { flex:1; min-width:160px; }
+
+  /* LOADING */
+  .loading { color:var(--gray); font-size:0.82rem; display:flex; align-items:center; gap:6px; }
+  .spin {
+    width:14px; height:14px; border:2px solid var(--border);
+    border-top-color:var(--gold); border-radius:50%;
+    animation:spin .7s linear infinite; flex-shrink:0;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* TOAST */
+  #toast {
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    background:var(--gold); color:var(--navy); padding:10px 22px;
+    border-radius:24px; font-weight:700; font-size:0.85rem;
+    opacity:0; pointer-events:none; transition:opacity .3s; z-index:999;
+  }
+  #toast.show { opacity:1; }
+
+  /* STATS ROW */
+  .stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
+  .stat-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px; text-align:center; }
+  .stat-num { font-size:1.4rem; font-weight:800; color:var(--gold); }
+  .stat-lbl { font-size:0.72rem; color:var(--gray); margin-top:2px; }
+
+  /* COPY BTN */
+  .copy-btn {
+    background:transparent; border:1px solid var(--border);
+    color:var(--gray); padding:4px 10px; border-radius:6px;
+    font-size:0.75rem; cursor:pointer; transition:all .15s;
+  }
+  .copy-btn:hover { border-color:var(--gold); color:var(--gold); }
+
+  hr.divider { border:none; border-top:1px solid var(--border); margin:12px 0; }
+  .section-label { font-size:0.72rem; color:var(--gray); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+  .flex-between { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">✦ 璿潔工作坊</div>
+    <div class="subtitle">全功能管理系統</div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="showPage('post')">📝 貼文產生</div>
+  <div class="tab" onclick="showPage('repurpose')">♻️ 內容再利用</div>
+  <div class="tab" onclick="showPage('quote')">💰 報價計算</div>
+  <div class="tab" onclick="showPage('booking')">📅 預約管理</div>
+  <div class="tab" onclick="showPage('followup')">📞 追蹤客戶</div>
+  <div class="tab" onclick="showPage('sop')">✅ 每日SOP</div>
+  <div class="tab" onclick="showPage('autoreply')">🤖 自動回覆</div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ===================== PAGE 1: 貼文產生 ===================== -->
+<div id="page-post" class="page active">
+  <div class="card">
+    <div class="card-title">📝 AI 多平台貼文產生器</div>
+    <label>主題／服務類型</label>
+    <input id="post-topic" type="text" placeholder="例：冷氣清洗特惠、洗衣機清潔提醒...">
+    <label>重點訊息（可選）</label>
+    <textarea id="post-note" placeholder="例：六月優惠 NT$200 折扣、限桃園台中地區..."></textarea>
+    <label>語氣風格</label>
+    <select id="post-style">
+      <option value="friendly">親切友善</option>
+      <option value="promo">促銷活躍</option>
+      <option value="professional">專業可信</option>
+      <option value="urgent">限時緊迫</option>
+    </select>
+    <div class="btn-row">
+      <button class="btn btn-gold" onclick="generatePost()">✨ AI 產生貼文</button>
+      <button class="btn btn-outline btn-sm" onclick="clearPost()">清除</button>
+    </div>
+  </div>
+
+  <div class="ptabs">
+    <div class="ptab active" onclick="showPlatform('fb')">Facebook</div>
+    <div class="ptab" onclick="showPlatform('ig')">Instagram</div>
+    <div class="ptab" onclick="showPlatform('threads')">Threads</div>
+    <div class="ptab" onclick="showPlatform('line')">LINE</div>
+  </div>
+
+  <div class="card">
+    <div class="flex-between" style="margin-bottom:10px;">
+      <div class="card-title" style="margin-bottom:0;" id="platform-label">Facebook 貼文</div>
+      <button class="copy-btn" onclick="copyPlatform()">複製</button>
+    </div>
+    <div class="output-box" id="post-output">點擊「AI 產生貼文」後，內容會顯示在這裡。</div>
+  </div>
+</div>
+
+<!-- ===================== PAGE 2: 內容再利用 ===================== -->
+<div id="page-repurpose" class="page">
+  <div class="card">
+    <div class="card-title">♻️ 內容再利用工具</div>
+    <label>原始內容（貼一篇主文即可）</label>
+    <textarea id="repurpose-input" style="min-height:120px;" placeholder="貼上你的原始文章、說明文或舊貼文..."></textarea>
+    <div class="btn-row">
+      <button class="btn btn-gold" onclick="repurposeContent()">✨ 一鍵轉換所有平台</button>
+    </div>
+  </div>
+
+  <div id="repurpose-results" style="display:none;">
+    <div class="card">
+      <div class="flex-between" style="margin-bottom:8px;">
+        <div class="card-title" style="margin-bottom:0;">Facebook（正式專業）</div>
+        <button class="copy-btn" onclick="copyText('rp-fb')">複製</button>
+      </div>
+      <div class="output-box" id="rp-fb"></div>
+    </div>
+    <div class="card">
+      <div class="flex-between" style="margin-bottom:8px;">
+        <div class="card-title" style="margin-bottom:0;">Instagram（表情符號結構）</div>
+        <button class="copy-btn" onclick="copyText('rp-ig')">複製</button>
+      </div>
+      <div class="output-box" id="rp-ig"></div>
+    </div>
+    <div class="card">
+      <div class="flex-between" style="margin-bottom:8px;">
+        <div class="card-title" style="margin-bottom:0;">Threads（輕鬆對話）</div>
+        <button class="copy-btn" onclick="copyText('rp-threads')">複製</button>
+      </div>
+      <div class="output-box" id="rp-threads"></div>
+    </div>
+    <div class="card">
+      <div class="flex-between" style="margin-bottom:8px;">
+        <div class="card-title" style="margin-bottom:0;">LINE（簡短直接）</div>
+        <button class="copy-btn" onclick="copyText('rp-line')">複製</button>
+      </div>
+      <div class="output-box" id="rp-line"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PAGE 3: 報價計算 ===================== -->
+<div id="page-quote" class="page">
+  <div class="card">
+    <div class="card-title">💰 服務報價計算機</div>
+    <div class="price-row">
+      <div>
+        <div class="price-name">壁掛式冷氣清洗</div>
+        <div style="font-size:0.75rem;color:var(--gray);">每台</div>
+      </div>
+      <div class="price-amount">NT$1,500</div>
+    </div>
+    <div class="price-row">
+      <div>
+        <div class="price-name">窗型冷氣清洗</div>
+        <div style="font-size:0.75rem;color:var(--gray);">每台</div>
+      </div>
+      <div class="price-amount">NT$2,200</div>
+    </div>
+    <div class="price-row">
+      <div>
+        <div class="price-name">直立式洗衣機清洗</div>
+        <div style="font-size:0.75rem;color:var(--gray);">每台</div>
+      </div>
+      <div class="price-amount">NT$1,800</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🧮 計算報價</div>
+    <label>壁掛式冷氣（台數）</label>
+    <input id="q-wall" type="number" min="0" value="0" oninput="calcQuote()">
+    <label>窗型冷氣（台數）</label>
+    <input id="q-window" type="number" min="0" value="0" oninput="calcQuote()">
+    <label>直立式洗衣機（台數）</label>
+    <input id="q-washer" type="number" min="0" value="0" oninput="calcQuote()">
+    <label><input type="checkbox" id="q-newline" onchange="calcQuote()" style="width:auto;margin-right:6px;">LINE 新朋友優惠 (-NT$200)</label>
+    <label><input type="checkbox" id="q-travel" onchange="calcQuote()" style="width:auto;margin-right:6px;">加收外出費 (+NT$200)</label>
+    <div class="quote-result" id="quote-result">
+      <div style="font-size:0.8rem;color:var(--gray);margin-bottom:4px;">預估總金額</div>
+      <div class="quote-total">NT$0</div>
+      <div style="font-size:0.75rem;color:var(--gray);margin-top:6px;" id="quote-breakdown"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-gold" onclick="genQuoteMsg()">📋 產生報價訊息</button>
+    </div>
+    <div class="output-box" id="quote-msg" style="margin-top:10px;display:none;"></div>
+  </div>
+</div>
+
+<!-- ===================== PAGE 4: 預約管理 ===================== -->
+<div id="page-booking" class="page">
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num" id="stat-total">0</div>
+      <div class="stat-lbl">本月預約</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-pending">0</div>
+      <div class="stat-lbl">待確認</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-done">0</div>
+      <div class="stat-lbl">已完成</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📅 新增預約</div>
+    <label>客戶姓名</label>
+    <input id="bk-name" type="text" placeholder="王小明">
+    <label>電話</label>
+    <input id="bk-phone" type="tel" placeholder="0912-345-678">
+    <label>地址</label>
+    <input id="bk-addr" type="text" placeholder="台中市西屯區...">
+    <label>服務項目</label>
+    <select id="bk-service">
+      <option>壁掛式冷氣清洗</option>
+      <option>窗型冷氣清洗</option>
+      <option>直立式洗衣機清洗</option>
+      <option>冷氣維修（另報）</option>
+    </select>
+    <label>台數／數量</label>
+    <input id="bk-qty" type="number" min="1" value="1">
+    <label>預約日期時間</label>
+    <input id="bk-date" type="datetime-local">
+    <label>備註</label>
+    <textarea id="bk-note" placeholder="特殊需求、停車資訊..."></textarea>
+    <div class="btn-row">
+      <button class="btn btn-gold" onclick="addBooking()">＋ 新增預約</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 預約清單</div>
+    <div id="booking-list"><div style="color:var(--gray);font-size:0.85rem;">尚無預約記錄</div></div>
+  </div>
+</div>
+
+<!-- ===================== PAGE 5: 追蹤客戶 ===================== -->
+<div id="page-followup" class="page">
+  <div class="card">
+    <div class="card-title">📞 新增追蹤</div>
+    <label>客戶姓名</label>
+    <input id="fu-name" type="text" placeholder="陳大明">
+    <label>電話</label>
+    <input id="fu-phone" type="tel" placeholder="0912-345-678">
+    <label>上次服務</label>
+    <input id="fu-last" type="date">
+    <label>追蹤原因</label>
+    <select id="fu-reason">
+      <option>一年保養提醒</option>
+      <option>報價未成交</option>
+      <option>客訴處理</option>
+      <option>轉介紹回饋</option>
+      <option>其他</option>
+    </select>
+    <label>下次追蹤日</label>
+    <input id="fu-next" type="date">
+    <label>備註</label>
+    <input id="fu-note" type="text" placeholder="備註說明...">
+    <div class="btn-row">
+      <button class="btn btn-gold" onclick="addFollowup()">＋ 加入追蹤</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 追蹤清單</div>
+    <div id="followup-list"><div style="color:var(--gray);font-size:0.85rem;">尚無追蹤記錄</div></div>
+  </div>
+</div>
+
+<!-- ===================== PAGE 6: 每日SOP ===================== -->
+<div id="page-sop" class="page">
+  <div class="card">
+    <div class="card-title">✅ 每日工作 SOP</div>
+    <div style="font-size:0.8rem;color:var(--gray);margin-bottom:12px;">點選圓圈打勾，每日重置</div>
+    <div id="sop-list"></div>
+    <div class="btn-row" style="margin-top:12px;">
+      <button class="btn btn-outline btn-sm" onclick="resetSOP()">🔄 重置今日SOP</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">➕ 新增 SOP 項目</div>
+    <label>項目名稱</label>
+    <input id="sop-new" type="text" placeholder="例：檢查LINE官方帳號訊息">
+    <div class="btn-row">
+      <button class="btn btn-gold btn-sm" onclick="addSOP()">新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PAGE 7: 自動回覆 ===================== -->
+<div id="page-autoreply" class="page">
+  <div class="card">
+    <div class="card-title">🤖 LINE 自動回覆範本</div>
+    <div style="font-size:0.8rem;color:var(--gray);margin-bottom:12px;">點選複製，貼到 LINE Official Account 後台設定</div>
+
+    <div id="reply-list"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">✏️ 新增自訂回覆</div>
+    <label>觸發關鍵字</label>
+    <input id="ar-keyword" type="text" placeholder="例：保固">
+    <label>回覆內容</label>
+    <textarea id="ar-reply" placeholder="當客戶傳送此關鍵字時，自動回覆的內容..."></textarea>
+    <div class="btn-row">
+      <button class="btn btn-gold btn-sm" onclick="addReply()">新增回覆</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ======================== UTILS ========================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+function copyText(id) {
+  const el = document.getElementById(id);
+  if(!el || !el.textContent.trim()) return toast('沒有內容可複製');
+  navigator.clipboard.writeText(el.textContent).then(()=>toast('✓ 已複製！'));
+}
+
+function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e){} }
+function load(key, def) { try { const v=localStorage.getItem(key); return v?JSON.parse(v):def; } catch(e){ return def; } }
+
+// ======================== AI CALL ========================
+async function callClaude(prompt) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-6',
+      max_tokens:1000,
+      messages:[{role:'user',content:prompt}]
+    })
+  });
+  const data = await res.json();
+  return data.content?.map(b=>b.text||'').join('') || '';
+}
+
+// ======================== PAGE 1: 貼文 ========================
+let postResults = { fb:'', ig:'', threads:'', line:'' };
+let currentPlatform = 'fb';
+
+function showPlatform(p) {
+  currentPlatform = p;
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
+  event.target.classList.add('active');
+  const labels = { fb:'Facebook 貼文', ig:'Instagram 貼文', threads:'Threads 貼文', line:'LINE 訊息' };
+  document.getElementById('platform-label').textContent = labels[p];
+  document.getElementById('post-output').textContent = postResults[p] || '尚未產生此平台內容';
+}
+
+function copyPlatform() {
+  const txt = postResults[currentPlatform];
+  if(!txt) return toast('尚無內容');
+  navigator.clipboard.writeText(txt).then(()=>toast('✓ 已複製！'));
+}
+
+function clearPost() {
+  postResults = { fb:'', ig:'', threads:'', line:'' };
+  document.getElementById('post-output').textContent = '點擊「AI 產生貼文」後，內容會顯示在這裡。';
+  document.getElementById('post-topic').value = '';
+  document.getElementById('post-note').value = '';
+}
+
+async function generatePost() {
+  const topic = document.getElementById('post-topic').value.trim();
+  if(!topic) return toast('請輸入主題');
+  const note = document.getElementById('post-note').value.trim();
+  const style = document.getElementById('post-style').value;
+  const styleMap = { friendly:'親切友善', promo:'促銷活躍', professional:'專業可信', urgent:'限時緊迫' };
+
+  const out = document.getElementById('post-output');
+  out.innerHTML = '<div class="loading"><div class="spin"></div>AI 產生中，請稍候...</div>';
+
+  const prompt = `你是台灣家電清洗服務「璿潔工作坊」的社群媒體小編。
+業者資訊：
+- 服務：壁掛式冷氣清洗 NT$1,500/台、窗型冷氣清洗 NT$2,200/台、直立式洗衣機清洗 NT$1,800/台
+- 服務區域：新北、桃園、新竹、台中、苗栗、彰化（不含台北市）
+- 聯絡：LINE官方帳號 @429pxjoe、電話 0970-510-679
+
+請針對主題「${topic}」${note?`（重點：${note}）`:''}，以「${styleMap[style]}」風格，分別產生四個平台的貼文，用繁體中文。
+
+請用以下格式輸出（每個平台用 === 分隔）：
+===FB===
+[Facebook 貼文，200-300字，正式友善，附emoji，末尾加聯絡資訊]
+===IG===
+[Instagram 貼文，150字以內，多用emoji，結尾加5-8個hashtag]
+===THREADS===
+[Threads 貼文，100字以內，輕鬆對話口吻]
+===LINE===
+[LINE 訊息，簡短直接，條列式，50-80字]`;
+
+  try {
+    const result = await callClaude(prompt);
+    const fbMatch = result.match(/===FB===\n?([\s\S]*?)(?====IG===|$)/);
+    const igMatch = result.match(/===IG===\n?([\s\S]*?)(?====THREADS===|$)/);
+    const thMatch = result.match(/===THREADS===\n?([\s\S]*?)(?====LINE===|$)/);
+    const lnMatch = result.match(/===LINE===\n?([\s\S]*?)$/);
+    postResults.fb = fbMatch ? fbMatch[1].trim() : '';
+    postResults.ig = igMatch ? igMatch[1].trim() : '';
+    postResults.threads = thMatch ? thMatch[1].trim() : '';
+    postResults.line = lnMatch ? lnMatch[1].trim() : '';
+    out.textContent = postResults[currentPlatform] || '產生成功，請切換平台查看';
+  } catch(e) {
+    out.textContent = '⚠️ 產生失敗，請確認網路連線';
+  }
+}
+
+// ======================== PAGE 2: 再利用 ========================
+async function repurposeContent() {
+  const input = document.getElementById('repurpose-input').value.trim();
+  if(!input) return toast('請輸入原始內容');
+
+  const ids = ['rp-fb','rp-ig','rp-threads','rp-line'];
+  const results = document.getElementById('repurpose-results');
+  results.style.display = 'block';
+  ids.forEach(id => {
+    document.getElementById(id).innerHTML = '<div class="loading"><div class="spin"></div>轉換中...</div>';
+  });
+
+  const prompt = `你是台灣家電清洗服務「璿潔工作坊」的社群媒體小編。
+請把以下內容重新改寫成四個平台的版本，用繁體中文：
+
+原始內容：
+${input}
+
+請用以下格式輸出：
+===FB===
+[Facebook版，正式專業，200字內，加聯絡LINE @429pxjoe]
+===IG===
+[Instagram版，emoji豐富，150字內，加hashtag]
+===THREADS===
+[Threads版，輕鬆對話，100字內]
+===LINE===
+[LINE版，簡短條列，60字內]`;
+
+  try {
+    const result = await callClaude(prompt);
+    const fbM = result.match(/===FB===\n?([\s\S]*?)(?====IG===|$)/);
+    const igM = result.match(/===IG===\n?([\s\S]*?)(?====THREADS===|$)/);
+    const thM = result.match(/===THREADS===\n?([\s\S]*?)(?====LINE===|$)/);
+    const lnM = result.match(/===LINE===\n?([\s\S]*?)$/);
+    document.getElementById('rp-fb').textContent = fbM ? fbM[1].trim() : '產生失敗';
+    document.getElementById('rp-ig').textContent = igM ? igM[1].trim() : '產生失敗';
+    document.getElementById('rp-threads').textContent = thM ? thM[1].trim() : '產生失敗';
+    document.getElementById('rp-line').textContent = lnM ? lnM[1].trim() : '產生失敗';
+  } catch(e) {
+    ids.forEach(id => { document.getElementById(id).textContent = '⚠️ 失敗，請重試'; });
+  }
+}
+
+// ======================== PAGE 3: 報價 ========================
+function calcQuote() {
+  const wall = parseInt(document.getElementById('q-wall').value)||0;
+  const win = parseInt(document.getElementById('q-window').value)||0;
+  const wash = parseInt(document.getElementById('q-washer').value)||0;
+  const newline = document.getElementById('q-newline').checked;
+  const travel = document.getElementById('q-travel').checked;
+  let total = wall*1500 + win*2200 + wash*1800;
+  if(newline) total -= 200;
+  if(travel) total += 200;
+  const parts = [];
+  if(wall) parts.push(`壁掛冷氣 ${wall}台 × $1,500`);
+  if(win) parts.push(`窗型冷氣 ${win}台 × $2,200`);
+  if(wash) parts.push(`洗衣機 ${wash}台 × $1,800`);
+  if(newline) parts.push('LINE新朋友 -$200');
+  if(travel) parts.push('外出費 +$200');
+  document.querySelector('.quote-total').textContent = `NT$${total.toLocaleString()}`;
+  document.getElementById('quote-breakdown').textContent = parts.join(' ＋ ') || '請輸入台數';
+}
+
+function genQuoteMsg() {
+  const wall = parseInt(document.getElementById('q-wall').value)||0;
+  const win = parseInt(document.getElementById('q-window').value)||0;
+  const wash = parseInt(document.getElementById('q-washer').value)||0;
+  const newline = document.getElementById('q-newline').checked;
+  const travel = document.getElementById('q-travel').checked;
+  let total = wall*1500 + win*2200 + wash*1800;
+  if(newline) total -= 200;
+  if(travel) total += 200;
+  const msgEl = document.getElementById('quote-msg');
+  let msg = `您好！以下是璿潔工作坊的報價：\n\n`;
+  if(wall) msg += `✅ 壁掛式冷氣清洗 × ${wall}台 → NT$${(wall*1500).toLocaleString()}\n`;
+  if(win) msg += `✅ 窗型冷氣清洗 × ${win}台 → NT$${(win*2200).toLocaleString()}\n`;
+  if(wash) msg += `✅ 直立式洗衣機清洗 × ${wash}台 → NT$${(wash*1800).toLocaleString()}\n`;
+  if(newline) msg += `🎁 LINE新朋友優惠 -NT$200\n`;
+  if(travel) msg += `🚗 外出費 +NT$200\n`;
+  msg += `\n💰 合計：NT$${total.toLocaleString()}\n\n請問您方便的時間是？我們服務區域涵蓋新北、桃園、新竹、台中、苗栗、彰化。\n📞 0970-510-679 ｜ LINE: @429pxjoe`;
+  msgEl.style.display = 'block';
+  msgEl.textContent = msg;
+  navigator.clipboard.writeText(msg).then(()=>toast('✓ 報價訊息已複製！'));
+}
+
+// ======================== PAGE 4: 預約 ========================
+let bookings = load('bookings', []);
+
+function renderBookings() {
+  const el = document.getElementById('booking-list');
+  const statusColors = { '待確認':'badge-yellow', '已完成':'badge-green', '已取消':'badge-red' };
+  if(!bookings.length) { el.innerHTML='<div style="color:var(--gray);font-size:0.85rem;">尚無預約記錄</div>'; updateStats(); return; }
+  el.innerHTML = bookings.map((b,i)=>`
+    <div class="booking-item">
+      <div class="booking-info">
+        <div class="booking-name">${b.name} <span style="font-size:0.75rem;color:var(--gray);">${b.phone}</span></div>
+        <div class="booking-detail">📍${b.addr}</div>
+        <div class="booking-detail">🔧 ${b.service} × ${b.qty}台</div>
+        <div class="booking-detail">📅 ${b.date ? new Date(b.date).toLocaleString('zh-TW') : '未定'}</div>
+        ${b.note?`<div class="booking-detail">📝 ${b.note}</div>`:''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+        <span class="badge ${statusColors[b.status]||'badge-yellow'}">${b.status}</span>
+        <select class="btn btn-sm btn-outline" style="padding:4px 6px;font-size:0.72rem;" onchange="updateBookingStatus(${i},this.value)">
+          <option ${b.status==='待確認'?'selected':''}>待確認</option>
+          <option ${b.status==='已完成'?'selected':''}>已完成</option>
+          <option ${b.status==='已取消'?'selected':''}>已取消</option>
+        </select>
+        <button class="btn btn-red btn-sm" onclick="deleteBooking(${i})">刪除</button>
+      </div>
+    </div>`).join('');
+  updateStats();
+}
+
+function updateStats() {
+  document.getElementById('stat-total').textContent = bookings.length;
+  document.getElementById('stat-pending').textContent = bookings.filter(b=>b.status==='待確認').length;
+  document.getElementById('stat-done').textContent = bookings.filter(b=>b.status==='已完成').length;
+}
+
+function addBooking() {
+  const name = document.getElementById('bk-name').value.trim();
+  if(!name) return toast('請輸入客戶姓名');
+  bookings.unshift({
+    name, phone: document.getElementById('bk-phone').value,
+    addr: document.getElementById('bk-addr').value,
+    service: document.getElementById('bk-service').value,
+    qty: document.getElementById('bk-qty').value,
+    date: document.getElementById('bk-date').value,
+    note: document.getElementById('bk-note').value,
+    status: '待確認'
+  });
+  save('bookings', bookings);
+  renderBookings();
+  ['bk-name','bk-phone','bk-addr','bk-note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('bk-qty').value=1;
+  toast('✓ 預約已新增！');
+}
+
+function updateBookingStatus(i, status) {
+  bookings[i].status = status;
+  save('bookings', bookings);
+  renderBookings();
+}
+
+function deleteBooking(i) {
+  if(!confirm('確定要刪除此預約？')) return;
+  bookings.splice(i,1);
+  save('bookings', bookings);
+  renderBookings();
+}
+
+// ======================== PAGE 5: 追蹤 ========================
+let followups = load('followups', []);
+
+function renderFollowups() {
+  const el = document.getElementById('followup-list');
+  if(!followups.length) { el.innerHTML='<div style="color:var(--gray);font-size:0.85rem;">尚無追蹤記錄</div>'; return; }
+  const today = new Date().toISOString().slice(0,10);
+  el.innerHTML = followups.map((f,i)=>{
+    const overdue = f.next && f.next < today;
+    return `<div class="follow-item">
+      <div class="follow-info">
+        <div style="font-weight:600;font-size:0.88rem;">${f.name} <span style="font-size:0.75rem;color:var(--gray);">${f.phone}</span></div>
+        <div style="font-size:0.76rem;color:var(--gray);margin-top:2px;">原因：${f.reason}</div>
+        ${f.last?`<div style="font-size:0.76rem;color:var(--gray);">上次服務：${f.last}</div>`:''}
+        ${f.next?`<div style="font-size:0.76rem;color:${overdue?'var(--red)':'var(--green)'};">追蹤日：${f.next} ${overdue?'⚠️ 逾期':''}</div>`:''}
+        ${f.note?`<div style="font-size:0.76rem;color:var(--gray);">${f.note}</div>`:''}
+      </div>
+      <div style="display:flex;gap:6px;">
+        <a href="tel:${f.phone}" class="btn btn-blue btn-sm" style="text-decoration:none;">📞</a>
+        <button class="btn btn-red btn-sm" onclick="deleteFollowup(${i})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addFollowup() {
+  const name = document.getElementById('fu-name').value.trim();
+  if(!name) return toast('請輸入姓名');
+  followups.unshift({
+    name, phone: document.getElementById('fu-phone').value,
+    last: document.getElementById('fu-last').value,
+    reason: document.getElementById('fu-reason').value,
+    next: document.getElementById('fu-next').value,
+    note: document.getElementById('fu-note').value
+  });
+  save('followups', followups);
+  renderFollowups();
+  ['fu-name','fu-phone','fu-last','fu-next','fu-note'].forEach(id=>document.getElementById(id).value='');
+  toast('✓ 已加入追蹤！');
+}
+
+function deleteFollowup(i) {
+  followups.splice(i,1);
+  save('followups', followups);
+  renderFollowups();
+}
+
+// ======================== PAGE 6: SOP ========================
+const defaultSOP = [
+  '檢查 LINE 官方帳號訊息並回覆',
+  '確認今日預約行程',
+  '準備清洗工具與耗材',
+  '出發前確認客戶地址與停車資訊',
+  '服務完成後拍照存檔',
+  '向客戶說明清洗結果並推薦保養週期',
+  '更新預約系統狀態',
+  '檢查明日預約並提前聯絡確認',
+  '發布今日服務貼文到社群媒體',
+  '補充耗材清單'
+];
+
+let sopItems = load('sopItems', defaultSOP.map(t=>({ text:t, done:false })));
+
+function renderSOP() {
+  document.getElementById('sop-list').innerHTML = sopItems.map((s,i)=>`
+    <div class="sop-item">
+      <div class="sop-check ${s.done?'done':''}" onclick="toggleSOP(${i})">${s.done?'✓':''}</div>
+      <div class="sop-text ${s.done?'done':''}">${s.text}</div>
+    </div>`).join('');
+}
+
+function toggleSOP(i) {
+  sopItems[i].done = !sopItems[i].done;
+  save('sopItems', sopItems);
+  renderSOP();
+}
+
+function resetSOP() {
+  sopItems = sopItems.map(s=>({...s, done:false}));
+  save('sopItems', sopItems);
+  renderSOP();
+  toast('SOP 已重置');
+}
+
+function addSOP() {
+  const txt = document.getElementById('sop-new').value.trim();
+  if(!txt) return;
+  sopItems.push({ text:txt, done:false });
+  save('sopItems', sopItems);
+  renderSOP();
+  document.getElementById('sop-new').value='';
+  toast('✓ 已新增');
+}
+
+// ======================== PAGE 7: 自動回覆 ========================
+const defaultReplies = [
+  { keyword:'冷氣', reply:`您好！璿潔工作坊冷氣清洗服務：\n✅ 壁掛式冷氣：NT$1,500/台\n✅ 窗型冷氣：NT$2,200/台\n服務區域：新北、桃園、新竹、台中、苗栗、彰化\n📞 預約請電：0970-510-679` },
+  { keyword:'洗衣機', reply:`您好！璿潔工作坊洗衣機清洗服務：\n✅ 直立式洗衣機：NT$1,800/台\n⚠️ 目前不提供滾筒式洗衣機服務\n服務區域：新北、桃園、新竹、台中、苗栗、彰化\n📞 預約請電：0970-510-679` },
+  { keyword:'預約', reply:`謝謝您的來訊！\n請告知：\n1️⃣ 服務項目（冷氣/洗衣機）\n2️⃣ 台數\n3️⃣ 地址\n4️⃣ 方便的時間\n我們會盡快為您安排！` },
+  { keyword:'價格', reply:`璿潔工作坊服務價格：\n💨 壁掛式冷氣清洗：NT$1,500/台\n🪟 窗型冷氣清洗：NT$2,200/台\n🫧 直立式洗衣機清洗：NT$1,800/台\n🎁 LINE新朋友：折扣 NT$200\n如需維修另行報價，歡迎詢問！` },
+  { keyword:'服務區域', reply:`璿潔工作坊服務範圍：\n📍 新北市、桃園市、新竹縣市\n📍 台中市、苗栗縣、彰化縣\n⚠️ 目前不提供台北市服務\n如有疑問請電：0970-510-679` },
+];
+let replies = load('replies', defaultReplies);
+
+function renderReplies() {
+  document.getElementById('reply-list').innerHTML = replies.map((r,i)=>`
+    <div class="card" style="margin-bottom:10px;">
+      <div class="flex-between" style="margin-bottom:8px;">
+        <span class="badge badge-yellow">關鍵字：${r.keyword}</span>
+        <div style="display:flex;gap:6px;">
+          <button class="copy-btn" onclick="copyReply(${i})">複製回覆</button>
+          <button class="btn btn-red btn-sm" onclick="deleteReply(${i})">刪除</button>
+        </div>
+      </div>
+      <div class="output-box" style="font-size:0.8rem;">${r.reply}</div>
+    </div>`).join('');
+}
+
+function copyReply(i) {
+  navigator.clipboard.writeText(replies[i].reply).then(()=>toast('✓ 已複製！'));
+}
+
+function deleteReply(i) {
+  replies.splice(i,1);
+  save('replies', replies);
+  renderReplies();
+}
+
+function addReply() {
+  const kw = document.getElementById('ar-keyword').value.trim();
+  const rp = document.getElementById('ar-reply').value.trim();
+  if(!kw||!rp) return toast('請填寫關鍵字與回覆內容');
+  replies.push({ keyword:kw, reply:rp });
+  save('replies', replies);
+  renderReplies();
+  document.getElementById('ar-keyword').value='';
+  document.getElementById('ar-reply').value='';
+  toast('✓ 已新增回覆');
+}
+
+// ======================== INIT ========================
+calcQuote();
+renderBookings();
+renderFollowups();
+renderSOP();
+renderReplies();
+</script>
+</body>
+</html>
