@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>璿潔工作坊 — 線上預約</title>
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --navy2: #1b2e44;
+    --gold: #c9a84c;
+    --gold2: #e8c97a;
+    --white: #f5f5f0;
+    --gray: #8a9bb0;
+    --green: #2ecc71;
+    --red: #e74c3c;
+    --card: #162234;
+    --border: #243650;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--navy); color:var(--white); font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; }
+
+  /* HERO */
+  .hero {
+    background:linear-gradient(135deg,#0d1b2a 0%,#1b2e44 100%);
+    border-bottom:2px solid var(--gold);
+    padding:32px 20px 24px;
+    text-align:center;
+  }
+  .hero-logo { font-size:1.6rem; font-weight:800; color:var(--gold); letter-spacing:2px; }
+  .hero-sub { font-size:0.85rem; color:var(--gray); margin-top:4px; }
+  .hero-title { font-size:1.3rem; font-weight:700; margin-top:16px; }
+  .hero-desc { font-size:0.85rem; color:var(--gray); margin-top:6px; line-height:1.6; }
+
+  /* PRICE BADGES */
+  .price-row { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
+  .price-badge { background:rgba(201,168,76,.15); border:1px solid var(--gold); border-radius:20px; padding:6px 14px; font-size:0.78rem; color:var(--gold); }
+
+  /* FORM */
+  .form-wrap { max-width:500px; margin:0 auto; padding:20px 16px 40px; }
+  .section-title { font-size:0.72rem; color:var(--gold); text-transform:uppercase; letter-spacing:2px; margin-bottom:12px; margin-top:24px; display:flex; align-items:center; gap:8px; }
+  .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  label { font-size:0.8rem; color:var(--gray); display:block; margin-bottom:4px; margin-top:12px; }
+  label span.req { color:var(--red); margin-left:2px; }
+  input, textarea, select {
+    width:100%; padding:11px 14px;
+    background:var(--card); border:1px solid var(--border);
+    border-radius:10px; color:var(--white); font-size:0.9rem;
+    outline:none; transition:border .2s;
+  }
+  input:focus, textarea:focus, select:focus { border-color:var(--gold); }
+  textarea { resize:vertical; min-height:70px; }
+  select option { background:var(--navy2); }
+
+  /* SERVICE CARDS */
+  .service-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:8px; }
+  .service-card {
+    background:var(--card); border:2px solid var(--border);
+    border-radius:12px; padding:12px; cursor:pointer;
+    transition:all .18s; text-align:center;
+  }
+  .service-card:hover { border-color:var(--gold); }
+  .service-card.selected { border-color:var(--gold); background:rgba(201,168,76,.1); }
+  .service-icon { font-size:1.6rem; margin-bottom:4px; }
+  .service-name { font-size:0.8rem; font-weight:600; }
+  .service-price { font-size:0.75rem; color:var(--gold); margin-top:2px; }
+
+  /* QTY */
+  .qty-row { display:flex; align-items:center; gap:12px; margin-top:8px; }
+  .qty-btn { width:36px; height:36px; border-radius:50%; border:1px solid var(--border); background:var(--card); color:var(--white); font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+  .qty-btn:hover { border-color:var(--gold); color:var(--gold); }
+  .qty-num { font-size:1.2rem; font-weight:700; min-width:24px; text-align:center; }
+
+  /* QUOTE BOX */
+  .quote-box {
+    background:linear-gradient(135deg,rgba(201,168,76,.12),transparent);
+    border:1px solid var(--gold); border-radius:12px;
+    padding:14px 16px; margin-top:16px;
+    display:none;
+  }
+  .quote-box.show { display:block; }
+  .quote-label { font-size:0.75rem; color:var(--gray); }
+  .quote-amount { font-size:1.8rem; font-weight:800; color:var(--gold); }
+  .quote-detail { font-size:0.78rem; color:var(--gray); margin-top:4px; }
+
+  /* CHECKBOX */
+  .check-row { display:flex; align-items:center; gap:8px; margin-top:10px; }
+  .check-row input[type=checkbox] { width:18px; height:18px; accent-color:var(--gold); cursor:pointer; }
+  .check-row label { margin:0; font-size:0.85rem; color:var(--white); cursor:pointer; }
+
+  /* SUBMIT */
+  .submit-btn {
+    width:100%; padding:14px; background:var(--gold); color:var(--navy);
+    border:none; border-radius:12px; font-size:1rem; font-weight:800;
+    cursor:pointer; margin-top:24px; transition:all .18s;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .submit-btn:hover { background:var(--gold2); transform:translateY(-1px); }
+  .submit-btn:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+
+  /* SUCCESS */
+  .success-box {
+    display:none; text-align:center; padding:40px 20px;
+  }
+  .success-box.show { display:block; }
+  .success-icon { font-size:3rem; margin-bottom:12px; }
+  .success-title { font-size:1.3rem; font-weight:700; color:var(--gold); }
+  .success-desc { font-size:0.85rem; color:var(--gray); margin-top:8px; line-height:1.7; }
+  .success-info { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-top:20px; text-align:left; }
+  .success-row { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border); font-size:0.85rem; }
+  .success-row:last-child { border-bottom:none; }
+  .success-row span:first-child { color:var(--gray); }
+  .success-row span:last-child { font-weight:600; }
+
+  /* CONTACT BAR */
+  .contact-bar { background:var(--navy2); border-top:1px solid var(--border); padding:16px; text-align:center; }
+  .contact-bar a { color:var(--gold); text-decoration:none; font-weight:600; font-size:0.88rem; }
+  .contact-links { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:8px; }
+  .contact-link { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:0.8rem; color:var(--white); text-decoration:none; transition:all .15s; }
+  .contact-link:hover { border-color:var(--gold); color:var(--gold); }
+
+  /* TOAST */
+  #toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--gold); color:var(--navy); padding:10px 22px; border-radius:24px; font-weight:700; font-size:0.85rem; opacity:0; pointer-events:none; transition:opacity .3s; z-index:999; white-space:nowrap; }
+  #toast.show { opacity:1; }
+
+  .spin { width:18px; height:18px; border:2px solid rgba(13,27,42,.4); border-top-color:var(--navy); border-radius:50%; animation:spin .7s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-logo">✦ 璿潔工作坊</div>
+  <div class="hero-sub">專業家電清洗服務</div>
+  <div class="hero-title">線上預約</div>
+  <div class="hero-desc">填寫以下表單，我們將在 24 小時內與您確認預約時間</div>
+  <div class="price-row">
+    <div class="price-badge">壁掛冷氣 NT$1,500</div>
+    <div class="price-badge">窗型冷氣 NT$2,200</div>
+    <div class="price-badge">洗衣機 NT$1,800</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<div class="form-wrap" id="form-section">
+
+  <!-- 服務選擇 -->
+  <div class="section-title">選擇服務</div>
+  <div class="service-grid">
+    <div class="service-card" onclick="selectService(this,'壁掛式冷氣清洗',1500)">
+      <div class="service-icon">💨</div>
+      <div class="service-name">壁掛式冷氣</div>
+      <div class="service-price">NT$1,500／台</div>
+    </div>
+    <div class="service-card" onclick="selectService(this,'窗型冷氣清洗',2200)">
+      <div class="service-icon">🪟</div>
+      <div class="service-name">窗型冷氣</div>
+      <div class="service-price">NT$2,200／台</div>
+    </div>
+    <div class="service-card" onclick="selectService(this,'直立式洗衣機清洗',1800)">
+      <div class="service-icon">🫧</div>
+      <div class="service-name">直立式洗衣機</div>
+      <div class="service-price">NT$1,800／台</div>
+    </div>
+    <div class="service-card" onclick="selectService(this,'冷氣維修',0)">
+      <div class="service-icon">❄️</div>
+      <div class="service-name">冷氣維修</div>
+      <div class="service-price">另行報價</div>
+    </div>
+    <div class="service-card" onclick="selectService(this,'洗衣機維修',0)">
+      <div class="service-icon">🔧</div>
+      <div class="service-name">洗衣機維修</div>
+      <div class="service-price">另行報價</div>
+    </div>
+  </div>
+
+  <label>台數</label>
+  <div class="qty-row">
+    <button class="qty-btn" onclick="changeQty(-1)">－</button>
+    <div class="qty-num" id="qty-display">1</div>
+    <button class="qty-btn" onclick="changeQty(1)">＋</button>
+    <span style="font-size:0.8rem;color:var(--gray);">台</span>
+  </div>
+
+  <div class="check-row">
+    <input type="checkbox" id="new-line" onchange="calcTotal()">
+    <label for="new-line">LINE 新朋友優惠（首次 -NT$200）</label>
+  </div>
+
+  <div class="quote-box" id="quote-box">
+    <div class="quote-label">預估費用</div>
+    <div class="quote-amount" id="quote-amount">NT$0</div>
+    <div class="quote-detail" id="quote-detail"></div>
+  </div>
+
+  <!-- 客戶資料 -->
+  <div class="section-title">您的資料</div>
+
+  <label>姓名 <span class="req">*</span></label>
+  <input id="f-name" type="text" placeholder="王小明">
+
+  <label>電話 <span class="req">*</span></label>
+  <input id="f-phone" type="tel" placeholder="0912-345-678">
+
+  <label>服務地址 <span class="req">*</span></label>
+  <input id="f-addr" type="text" placeholder="台中市西屯區...">
+
+  <!-- 時間 -->
+  <div class="section-title">預約時間</div>
+
+  <label>希望日期 <span class="req">*</span></label>
+  <input id="f-date" type="date">
+
+  <label>希望時段</label>
+  <select id="f-time">
+    <option value="">不限（由我們安排）</option>
+    <option value="上午 09:00-12:00">上午 09:00–12:00</option>
+    <option value="下午 13:00-17:00">下午 13:00–17:00</option>
+    <option value="下午 17:00-20:00">傍晚 17:00–20:00</option>
+  </select>
+
+  <label>備註（停車、注意事項等）</label>
+  <textarea id="f-note" placeholder="例：2樓、門口有狗、需提前電話確認..."></textarea>
+
+  <button class="submit-btn" id="submit-btn" onclick="submitForm()">
+    <span id="btn-text">✓ 送出預約申請</span>
+  </button>
+
+  <div style="text-align:center;font-size:0.75rem;color:var(--gray);margin-top:12px;">
+    送出後我們將於 24 小時內以電話或 LINE 確認
+  </div>
+</div>
+
+<!-- 成功畫面 -->
+<div class="success-box" id="success-section">
+  <div class="success-icon">🎉</div>
+  <div class="success-title">預約申請已送出！</div>
+  <div class="success-desc">感謝您的預約！<br>我們將在 24 小時內以電話或 LINE 與您確認時間。</div>
+  <div class="success-info" id="success-info"></div>
+  <button class="submit-btn" style="margin-top:20px;" onclick="resetForm()">再次預約</button>
+</div>
+
+<div class="contact-bar">
+  <div style="font-size:0.78rem;color:var(--gray);">需要立即諮詢？</div>
+  <div class="contact-links">
+    <a href="tel:0970510679" class="contact-link">📞 0970-510-679</a>
+    <a href="https://line.me/R/ti/p/@429pxjoe" class="contact-link">💬 LINE @429pxjoe</a>
+  </div>
+</div>
+
+<script>
+let selectedService = '';
+let selectedPrice = 0;
+let qty = 1;
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function selectService(el, name, price){
+  document.querySelectorAll('.service-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedService=name; selectedPrice=price;
+  calcTotal();
+}
+
+function changeQty(d){
+  qty=Math.max(1,Math.min(10,qty+d));
+  document.getElementById('qty-display').textContent=qty;
+  calcTotal();
+}
+
+function calcTotal(){
+  if(!selectedPrice){ document.getElementById('quote-box').classList.remove('show'); return; }
+  const newline=document.getElementById('new-line').checked;
+  let total=selectedPrice*qty;
+  if(newline) total-=200;
+  const qb=document.getElementById('quote-box');
+  qb.classList.add('show');
+  document.getElementById('quote-amount').textContent='NT$'+total.toLocaleString();
+  let detail=`${selectedService} × ${qty}台`;
+  if(newline) detail+=' ／ LINE新朋友 -NT$200';
+  document.getElementById('quote-detail').textContent=detail;
+}
+
+function submitForm(){
+  const name=document.getElementById('f-name').value.trim();
+  const phone=document.getElementById('f-phone').value.trim();
+  const addr=document.getElementById('f-addr').value.trim();
+  const date=document.getElementById('f-date').value;
+  if(!name) return toast('請填寫姓名');
+  if(!phone) return toast('請填寫電話');
+  if(!addr) return toast('請填寫地址');
+  if(!date) return toast('請選擇希望日期');
+  if(!selectedService) return toast('請選擇服務項目');
+
+  const btn=document.getElementById('submit-btn');
+  btn.disabled=true;
+  document.getElementById('btn-text').innerHTML='<div class="spin"></div> 送出中...';
+
+  const newline=document.getElementById('new-line').checked;
+  let total=selectedPrice>0?selectedPrice*qty:0;
+  if(newline&&total>0) total-=200;
+
+  const data={
+    name, phone, addr,
+    service: selectedService,
+    qty, date,
+    time: document.getElementById('f-time').value||'不限',
+    note: document.getElementById('f-note').value,
+    total: total>0?'NT$'+total.toLocaleString():'另行報價',
+    newline
+  };
+
+  // 送到 Google 表單（如有設定）
+  sendToGoogleForm(data);
+
+  // 顯示成功畫面
+  setTimeout(()=>{
+    document.getElementById('form-section').style.display='none';
+    const ss=document.getElementById('success-section');
+    ss.classList.add('show');
+    document.getElementById('success-info').innerHTML=`
+      <div class="success-row"><span>姓名</span><span>${data.name}</span></div>
+      <div class="success-row"><span>電話</span><span>${data.phone}</span></div>
+      <div class="success-row"><span>地址</span><span>${data.addr}</span></div>
+      <div class="success-row"><span>服務</span><span>${data.service} × ${data.qty}台</span></div>
+      <div class="success-row"><span>日期</span><span>${data.date}</span></div>
+      <div class="success-row"><span>時段</span><span>${data.time}</span></div>
+      <div class="success-row"><span>預估費用</span><span style="color:var(--gold);font-weight:800;">${data.total}</span></div>
+    `;
+    // 儲存到 localStorage
+    const bookings=JSON.parse(localStorage.getItem('xuanjie_bookings')||'[]');
+    bookings.unshift({...data, status:'待確認', created: new Date().toISOString()});
+    localStorage.setItem('xuanjie_bookings', JSON.stringify(bookings));
+  }, 1200);
+}
+
+function sendToGoogleForm(data){
+  // 請在下方填入你的 Google 表單 prefill URL
+  // const FORM_URL = 'https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse';
+  // fetch(FORM_URL, { method:'POST', mode:'no-cors', body: new URLSearchParams({...}) });
+}
+
+function resetForm(){
+  document.getElementById('success-section').classList.remove('show');
+  document.getElementById('form-section').style.display='block';
+  document.getElementById('f-name').value='';
+  document.getElementById('f-phone').value='';
+  document.getElementById('f-addr').value='';
+  document.getElementById('f-date').value='';
+  document.getElementById('f-note').value='';
+  document.getElementById('f-time').value='';
+  document.getElementById('new-line').checked=false;
+  document.querySelectorAll('.service-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('quote-box').classList.remove('show');
+  selectedService=''; selectedPrice=0; qty=1;
+  document.getElementById('qty-display').textContent='1';
+  const btn=document.getElementById('submit-btn');
+  btn.disabled=false;
+  document.getElementById('btn-text').textContent='✓ 送出預約申請';
+}
+
+// 設定最早可預約日期為明天
+const tomorrow=new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+document.getElementById('f-date').min=tomorrow.toISOString().slice(0,10);
+</script>
+</body>
+</html>
